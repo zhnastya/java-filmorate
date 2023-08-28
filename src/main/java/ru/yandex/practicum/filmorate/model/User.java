@@ -15,8 +15,7 @@ import java.time.LocalDate;
 public class User {
     @PositiveOrZero(message = "id должен быть положительным целым числом")
     private Integer id;
-    @NotBlank(message = "email не может быть пустым")
-    @NotNull(message = "email не может равняться нулю")
+    @NotBlank(message = "email не может быть пустым или равняться нулю")
     @Email(message = "email не валидный")
     private String email;
     @NotBlank(message = "login не может быть пустым")

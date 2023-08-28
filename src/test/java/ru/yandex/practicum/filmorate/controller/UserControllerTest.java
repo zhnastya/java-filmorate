@@ -66,7 +66,7 @@ public class UserControllerTest {
                 .findFirst()
                 .orElse("");
         assertTrue(validates.size() > 0);
-        assertEquals(message, "email не может быть пустым");
+        assertEquals(message, "email не может быть пустым или равняться нулю");
     }
 
     @Test
@@ -81,7 +81,7 @@ public class UserControllerTest {
                 .findFirst()
                 .orElse("");
         assertTrue(validates.size() > 0);
-        assertEquals(message, "email не может равняться нулю");
+        assertEquals(message, "email не может быть пустым или равняться нулю");
     }
 
     @Test
