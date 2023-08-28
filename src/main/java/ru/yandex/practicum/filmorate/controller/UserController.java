@@ -1,14 +1,15 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exeption.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @Slf4j
@@ -16,45 +17,33 @@ import java.util.List;
 public class UserController {
 
     private int uniqueId = 1;
-    private final HashMap<Integer, User> users = new HashMap<>();
+    private final Map<Integer, User> users = new LinkedHashMap<>();
 
     @PostMapping
     public User createUser(@Valid @RequestBody User user) {
-        String email = users.values().stream()
-                .map(User::getEmail)
-                .filter(s -> s.equals(user.getEmail()))
-                .findFirst()
-                .orElse("");
-        if (email.isEmpty()) {
-            String name = user.getName() == null ? user.getLogin() : user.getName();
-            User user1 = new User(
-                    uniqueId, user.getEmail(), user.getLogin(), name, user.getBirthday()
-            );
-            users.put(uniqueId, user1);
-            log.info("Добавлен новый пользователь");
-            uniqueId++;
-            return user1;
-        } else {
-            log.warn("Пользователь с таким email уже существует");
-            throw new ValidationException("Пользователь с таким email уже существует");
-        }
+        String name = user.getName() == null ? user.getLogin() : user.getName();
+        user.setName(name);
+        user.setId(uniqueId);
+        users.put(uniqueId, user);
+        log.info("Добавлен новый пользователь");
+        uniqueId++;
+        return user;
     }
+
 
     @PutMapping
     public User updateUser(@Valid @RequestBody User user) {
-        if (users.containsKey(user.getId())) {
-            String name = user.getName() == null ? user.getLogin() : user.getName();
-            User user1 = new User(
-                    user.getId(), user.getEmail(), user.getLogin(), name, user.getBirthday()
-            );
-            users.put(user.getId(), user1);
-            log.info("Пользователь обновлен");
-            return user1;
-        } else {
+        if (!users.containsKey(user.getId()) || user.getId() == null) {
             log.warn("Пользователя с таким id не существует");
             throw new ValidationException("Пользователя с таким id не существует");
         }
+        String name = user.getName() == null ? user.getLogin() : user.getName();
+        user.setName(name);
+        users.put(user.getId(), user);
+        log.info("Пользователь обновлен");
+        return user;
     }
+
 
     @GetMapping
     public List<User> getUsers() {
