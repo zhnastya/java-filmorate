@@ -44,6 +44,16 @@ public class FilmControllerTest {
     }
 
     @Test
+    @DisplayName("Если id = null")
+    void shouldRightIdIfNull() {
+        final Film film = new Film(null, "name", "desc",
+                LocalDate.of(1999, 12, 12), 10);
+
+        Set<ConstraintViolation<Film>> validates = validator.validate(film);
+        assertEquals(0, validates.size());
+    }
+
+    @Test
     @DisplayName("Если название пустое")
     void shouldCheckNameEmpty() {
         final Film film = new Film(1, null, "desc",
@@ -138,6 +148,16 @@ public class FilmControllerTest {
     void shouldCheckDateNotInPast() {
         final Film film = new Film(1, "name", "desc",
                 LocalDate.of(1895, 12, 29), 10);
+
+        Set<ConstraintViolation<Film>> validates = validator.validate(film);
+        assertEquals(0, validates.size());
+    }
+
+    @Test
+    @DisplayName("Если дата = 1895-12-28")
+    void shouldCheckDateMinValue() {
+        final Film film = new Film(1, "name", "desc",
+                LocalDate.of(1895, 12, 28), 10);
 
         Set<ConstraintViolation<Film>> validates = validator.validate(film);
         assertEquals(0, validates.size());
