@@ -112,7 +112,7 @@ public class UserControllerTest {
     @Test
     @DisplayName("Если login пустой")
     void shouldThrowIfLoginEmpty() {
-        final User user = new User(1, "email@email.ru", "", "name",
+        final User user = new User(1, "email@email.ru", null, "name",
                 LocalDate.of(1999, 12, 12));
 
         Set<ConstraintViolation<User>> validates = validator.validate(user);
