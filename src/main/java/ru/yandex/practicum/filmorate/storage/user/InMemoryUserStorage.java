@@ -5,7 +5,10 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exeption.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 @Slf4j
@@ -13,20 +16,6 @@ public class InMemoryUserStorage implements UserStorage {
 
     private int uniqueId = 1;
     private final Map<Integer, User> users = new LinkedHashMap<>();
-    private final Map<Integer, Set<User>> friends = new HashMap<>();
-
-    @Override
-    public void updateFriend(int id, Set<User> user) {
-        friends.put(id, user);
-    }
-
-    @Override
-    public Set<User> getFriendsById(int id) {
-        if (!friends.containsKey(id)) {
-            return Set.of();
-        }
-        return friends.get(id);
-    }
 
     @Override
     public User createUser(User user) {

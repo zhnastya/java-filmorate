@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exeption.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
@@ -23,42 +24,42 @@ public class FilmService {
         this.storage = storage;
     }
 
-    public Film addLike(int id, int userId) {
-        Set<Integer> listFilm;
-        Film film = storage.getFilmById(id);
-        if (films.get(userId) == null) listFilm = new HashSet<>();
-        else listFilm = films.get(userId);
-        if (listFilm.contains(id)) {
-            return film;
+    public Film addLike(int userId, int filmId) {
+        Set<Integer> filmsId;
+        Film film = storage.getFilmById(filmId);
+        if (films.isEmpty() || !films.containsKey(userId)) {
+            filmsId = new HashSet<>();
+        } else {
+            filmsId = films.get(userId);
         }
-        film.setLikes(film.getLikes() + 1);
-        storage.updateFilm(film);
-        listFilm.add(id);
-        films.put(userId, listFilm);
-        log.info("Лайк успешно добавлен");
+        if (filmsId.add(filmId)) {
+            film.setLikes(film.getLikes() + 1);
+            films.put(userId, filmsId);
+            log.info("Лайк успешно добавлен");
+        }
         return film;
     }
 
-    public Film removeLike(int id, int userId) {
-        Film film = storage.getFilmById(id);
-        Set<Integer> listFilm;
-        if (films.get(userId) == null) listFilm = new HashSet<>();
-        else listFilm = films.get(userId);
-        if (!listFilm.contains(id)) {
-            return film;
+    public Film removeLike(int filmId, int userId) {
+        Set<Integer> filmsId;
+        Film film = storage.getFilmById(filmId);
+        if (films.isEmpty() || !films.containsKey(userId)) {
+            throw new NotFoundException("У фильма нет лайков");
+        } else {
+            filmsId = films.get(userId);
         }
-        film.setLikes(film.getLikes() - 1);
-        storage.updateFilm(film);
-        listFilm.remove(id);
-        films.put(userId, listFilm);
-        log.info("Лайк успешно удален");
+        if (filmsId.remove(filmId)) {
+            film.setLikes(film.getLikes() - 1);
+            films.put(userId, filmsId);
+            log.info("Лайк успешно удален");
+        }
         return film;
     }
 
-    public Set<Film> getLikes(int limit) {
+    public Set<Film> getPopular(int limit) {
         log.info("Список самых популярных фильмов отправлен");
         return storage.getFilms().stream()
-                .sorted((s, s1) -> -1 * Integer.compare(s.getLikes(), s1.getLikes()))
+                .sorted((s, s1) -> Integer.compare(s1.getLikes(), s.getLikes()))
                 .limit(limit)
                 .collect(Collectors.toSet());
     }

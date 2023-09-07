@@ -5,10 +5,10 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exeption.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Component
 @Slf4j
@@ -20,6 +20,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Film createFilm(Film film) {
         film.setId(uniqueId);
+        film.setLikes(0);
         films.put(uniqueId, film);
         uniqueId++;
         return film;
@@ -36,8 +37,8 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getFilms() {
-        return new ArrayList<>(films.values());
+    public Set<Film> getFilms() {
+        return new HashSet<>(films.values());
     }
 
     @Override

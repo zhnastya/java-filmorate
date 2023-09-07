@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import javax.validation.Valid;
-import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -36,7 +35,7 @@ public class FilmController {
     }
 
     @GetMapping("/films")
-    public List<Film> getFilms() {
+    public Set<Film> getFilms() {
         return storage.getFilms();
     }
 
@@ -53,7 +52,7 @@ public class FilmController {
         if (id < 0 || userId < 0) {
             throw new NotFoundException("Значения id не могут быть отрицательными");
         }
-        return service.addLike(id, userId);
+        return service.addLike(userId, id);
     }
 
     @DeleteMapping("/films/{id}/like/{userId}")
@@ -66,6 +65,6 @@ public class FilmController {
 
     @GetMapping("/films/popular")
     public Set<Film> getPopular(@RequestParam(defaultValue = "10") int count) {
-        return service.getLikes(count);
+        return service.getPopular(count);
     }
 }
