@@ -25,6 +25,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         this.storage = storage;
     }
 
+
     @Override
     public Film addLike(int userId, int filmId) {
         User user = storage.getUserById(userId).orElseThrow();
@@ -54,6 +55,7 @@ public class InMemoryFilmStorage implements FilmStorage {
                 .orElse(null);
     }
 
+
     @Override
     public Film removeLike(int filmId, int userId) {
         User user = storage.getUserById(userId).orElseThrow();
@@ -63,7 +65,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         }
         Set<Film> films1 = userFilms.get(user);
         if (!films1.contains(film)) {
-            throw new NotFoundException("Пользователь " + userId + " не лайкнул фильм с id - "+filmId);
+            throw new NotFoundException("Пользователь " + userId + " не лайкнул фильм с id - " + filmId);
         }
         return films1.stream()
                 .filter(s -> s.equals(film))
@@ -76,10 +78,12 @@ public class InMemoryFilmStorage implements FilmStorage {
                 .orElse(null);
     }
 
+
     @Override
     public Set<Film> getPopular() {
         return popular;
     }
+
 
     @Override
     public Film createFilm(Film film) {
@@ -90,6 +94,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         return film;
     }
 
+
     @Override
     public void updateFilm(Film film) {
         if (!films.containsKey(film.getId())) {
@@ -99,10 +104,12 @@ public class InMemoryFilmStorage implements FilmStorage {
         films.put(film.getId(), film);
     }
 
+
     @Override
     public List<Film> getFilms() {
         return new ArrayList<>(films.values());
     }
+
 
     @Override
     public Optional<Film> getFilmById(int id) {

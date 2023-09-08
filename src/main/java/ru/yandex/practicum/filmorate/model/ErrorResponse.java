@@ -8,6 +8,7 @@ public class ErrorResponse {
         this.error = error;
     }
 
+
     public ErrorResponse(String error, StackTraceElement[] stackTrace) {
         this.error = error;
         this.stackTrace = stackTrace;
@@ -16,6 +17,7 @@ public class ErrorResponse {
     public String getError() {
         return error;
     }
+
 
     public StackTraceElement[] getStackTrace() {
         return stackTrace;

@@ -20,30 +20,37 @@ public class FilmService {
         this.storage = storage;
     }
 
+
     public Film createFilm(Film film) {
         return storage.createFilm(film);
     }
+
 
     public Film updateFilm(Film film) {
         storage.updateFilm(film);
         return film;
     }
 
+
     public Film getById(int id) {
         return storage.getFilmById(id).orElseThrow();
     }
+
 
     public List<Film> getFilms() {
         return storage.getFilms();
     }
 
+
     public Film addLike(int userId, int filmId) {
         return storage.addLike(userId, filmId);
     }
 
+
     public Film removeLike(int filmId, int userId) {
         return storage.removeLike(filmId, userId);
     }
+
 
     public Set<Film> getPopular(int limit) {
         return storage.getPopular()

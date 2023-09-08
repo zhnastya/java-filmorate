@@ -21,6 +21,7 @@ public class FilmController {
         this.service = service;
     }
 
+
     @PostMapping
     public Film createFilm(@Valid @RequestBody Film film) {
         log.info("Запрос на добавление нового фильма");
@@ -28,6 +29,7 @@ public class FilmController {
         log.info("Добавлен новый фильм");
         return film1;
     }
+
 
     @PutMapping
     public Film updateFilm(@Valid @RequestBody Film film) {
@@ -37,6 +39,7 @@ public class FilmController {
         return film1;
     }
 
+
     @GetMapping
     public List<Film> getFilms() {
         log.info("Запрос на получение списка всех фильмов");
@@ -44,6 +47,7 @@ public class FilmController {
         log.info("Список всех фильмов отправлен");
         return films;
     }
+
 
     @GetMapping("/{id}")
     public Film getFilm(@PathVariable int id) {
@@ -53,6 +57,7 @@ public class FilmController {
         return film;
     }
 
+
     @PutMapping("/{id}/like/{userId}")
     public Film addLike(@PathVariable int id, @PathVariable int userId) {
         log.info("Запрос на добавление лайка фильму - " + id);
@@ -61,6 +66,7 @@ public class FilmController {
         return film;
     }
 
+
     @DeleteMapping("/{id}/like/{userId}")
     public Film removeLike(@PathVariable int id, @PathVariable int userId) {
         log.info("Запрос на удаление лайка фильму - " + id);
@@ -68,6 +74,7 @@ public class FilmController {
         log.info("Пользователь с id - " + userId + " удалил лайк фильму - " + id);
         return film;
     }
+
 
     @GetMapping("/popular")
     public Set<Film> getPopular(@RequestParam(defaultValue = "10") int count) {

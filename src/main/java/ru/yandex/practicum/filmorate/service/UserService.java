@@ -19,19 +19,23 @@ public class UserService {
         this.storage = storage;
     }
 
-    public User createUser(User user){
+
+    public User createUser(User user) {
         return storage.createUser(user);
     }
 
-    public User updateUser(User user){
+
+    public User updateUser(User user) {
         return storage.updateUser(user);
     }
 
-    public List<User> getUsers(){
+
+    public List<User> getUsers() {
         return storage.getUsers();
     }
 
-    public User getUserbyId(int id){
+
+    public User getUserbyId(int id) {
         return storage.getUserById(id).orElseThrow();
     }
 
@@ -40,13 +44,16 @@ public class UserService {
         return storage.addFriend(userId, friendId);
     }
 
+
     public Set<User> removeFriend(int userId, int friendId) {
         return storage.removeFriend(userId, friendId);
     }
 
+
     public Set<User> getFriends(int id) {
         return storage.getFriends(id);
     }
+
 
     public Set<User> getSameFriends(int id, int otherId) {
         return storage.getSameFriends(id, otherId);

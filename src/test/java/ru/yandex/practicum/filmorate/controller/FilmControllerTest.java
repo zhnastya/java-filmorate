@@ -46,7 +46,7 @@ public class FilmControllerTest {
     @Test
     @DisplayName("Если id = null")
     void shouldRightIdIfNull() {
-        final Film film = new Film(null, "name", "desc",
+        final Film film = new Film(0, "name", "desc",
                 LocalDate.of(1999, 12, 12), 10, 0);
 
         Set<ConstraintViolation<Film>> validates = validator.validate(film);

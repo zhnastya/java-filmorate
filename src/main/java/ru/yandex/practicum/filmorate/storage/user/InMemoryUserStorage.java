@@ -25,6 +25,7 @@ public class InMemoryUserStorage implements UserStorage {
         return user;
     }
 
+
     @Override
     public User updateUser(User user) {
         if (!users.containsKey(user.getId()) || user.getId() == 0) {
@@ -36,10 +37,12 @@ public class InMemoryUserStorage implements UserStorage {
         return user;
     }
 
+
     @Override
     public List<User> getUsers() {
         return new ArrayList<>(users.values());
     }
+
 
     @Override
     public Optional<User> getUserById(int id) {
@@ -51,6 +54,7 @@ public class InMemoryUserStorage implements UserStorage {
         }
         return user;
     }
+
 
     @Override
     public Set<User> addFriend(int userId, int friendId) {
@@ -69,6 +73,7 @@ public class InMemoryUserStorage implements UserStorage {
         return friendsList;
     }
 
+
     @Override
     public Set<User> removeFriend(int userId, int friendId) {
         Set<User> friendsList;
@@ -86,10 +91,12 @@ public class InMemoryUserStorage implements UserStorage {
         return friendsList;
     }
 
+
     @Override
     public Set<User> getFriends(int id) {
         return userFriends.get(getUserById(id).orElseThrow());
     }
+
 
     @Override
     public Set<User> getSameFriends(int id, int otherId) {

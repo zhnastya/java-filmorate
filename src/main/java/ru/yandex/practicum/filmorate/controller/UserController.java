@@ -21,6 +21,7 @@ public class UserController {
         this.service = service;
     }
 
+
     @PostMapping
     public User createUser(@Valid @RequestBody User user) {
         log.info("Запрос на добавление пользователя");
@@ -48,6 +49,7 @@ public class UserController {
         return users;
     }
 
+
     @GetMapping("/{id}")
     public User getUserById(@PathVariable("id") int id) {
         log.info("Запрос на получение пользователя с id - " + id);
@@ -55,6 +57,7 @@ public class UserController {
         log.info("Пользователь с id - " + id + " отправлен");
         return user;
     }
+
 
     @PutMapping("/{id}/friends/{friendId}")
     public Set<User> addFriend(@PathVariable("id") int id,
@@ -65,6 +68,7 @@ public class UserController {
         return friends;
     }
 
+
     @DeleteMapping("/{id}/friends/{friendId}")
     public Set<User> deleteFriend(@PathVariable int id,
                                   @PathVariable int friendId) {
@@ -74,6 +78,7 @@ public class UserController {
         return friends;
     }
 
+
     @GetMapping("/{id}/friends")
     public Set<User> getFriends(@PathVariable int id) {
         log.info("Запрос на получение друзей пользователя - " + id);
@@ -81,6 +86,7 @@ public class UserController {
         log.info("Отправлен список друзей пользователя - " + id);
         return friends;
     }
+
 
     @GetMapping("/{id}/friends/common/{otherId}")
     public Set<User> getSameFriends(@PathVariable int id,
