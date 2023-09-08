@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @Slf4j
 public class Film {
     @PositiveOrZero(message = "id должен быть положительным целым числом")
-    private Integer id;
+    private int id;
     @NotEmpty(message = "название не может быть пустым")
     private String name;
     @Size(max = 200, message = "длина описания не может быть больше 200 символов")

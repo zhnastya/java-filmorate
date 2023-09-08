@@ -3,68 +3,77 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exeption.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Set;
 
 @RestController
 @Slf4j
-@RequestMapping
+@RequestMapping("/films")
 public class FilmController {
-    private final FilmStorage storage;
     private final FilmService service;
 
     @Autowired
-    public FilmController(FilmStorage storage, FilmService service) {
-        this.storage = storage;
+    public FilmController(FilmService service) {
         this.service = service;
     }
 
-    @PostMapping("/films")
+    @PostMapping
     public Film createFilm(@Valid @RequestBody Film film) {
-        return storage.createFilm(film);
+        log.info("Запрос на добавление нового фильма");
+        Film film1 = service.createFilm(film);
+        log.info("Добавлен новый фильм");
+        return film1;
     }
 
-    @PutMapping("/films")
+    @PutMapping
     public Film updateFilm(@Valid @RequestBody Film film) {
-        return storage.updateFilm(film);
+        log.info("Запрос на обновление фильма");
+        Film film1 = service.updateFilm(film);
+        log.info("Фильм обновлен");
+        return film1;
     }
 
-    @GetMapping("/films")
-    public Set<Film> getFilms() {
-        return storage.getFilms();
+    @GetMapping
+    public List<Film> getFilms() {
+        log.info("Запрос на получение списка всех фильмов");
+        List<Film> films = service.getFilms();
+        log.info("Список всех фильмов отправлен");
+        return films;
     }
 
-    @GetMapping("/films/{id}")
+    @GetMapping("/{id}")
     public Film getFilm(@PathVariable int id) {
-        if (id < 0) {
-            throw new NotFoundException("Значения id не могут быть отрицательными");
-        }
-        return storage.getFilmById(id);
+        log.info("Запрос на получение фильма с id - " + id);
+        Film film = service.getById(id);
+        log.info("Фильм с id - " + id + " отправлен");
+        return film;
     }
 
-    @PutMapping("/films/{id}/like/{userId}")
+    @PutMapping("/{id}/like/{userId}")
     public Film addLike(@PathVariable int id, @PathVariable int userId) {
-        if (id < 0 || userId < 0) {
-            throw new NotFoundException("Значения id не могут быть отрицательными");
-        }
-        return service.addLike(userId, id);
+        log.info("Запрос на добавление лайка фильму - " + id);
+        Film film = service.addLike(userId, id);
+        log.info("Пользователь с id - " + userId + " поставил лайк фильму - " + id);
+        return film;
     }
 
-    @DeleteMapping("/films/{id}/like/{userId}")
+    @DeleteMapping("/{id}/like/{userId}")
     public Film removeLike(@PathVariable int id, @PathVariable int userId) {
-        if (id < 0 || userId < 0) {
-            throw new NotFoundException("Значения id не могут быть отрицательными");
-        }
-        return service.removeLike(id, userId);
+        log.info("Запрос на удаление лайка фильму - " + id);
+        Film film = service.removeLike(id, userId);
+        log.info("Пользователь с id - " + userId + " удалил лайк фильму - " + id);
+        return film;
     }
 
-    @GetMapping("/films/popular")
+    @GetMapping("/popular")
     public Set<Film> getPopular(@RequestParam(defaultValue = "10") int count) {
-        return service.getPopular(count);
+        log.info("Запрос на получение списка популярных фильмов");
+        Set<Film> films = service.getPopular(count);
+        log.info("Список популярных фильмов отправлен");
+        return films;
     }
 }
