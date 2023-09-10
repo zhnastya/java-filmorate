@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -11,7 +12,6 @@ import ru.yandex.practicum.filmorate.exeption.ValidationException;
 import ru.yandex.practicum.filmorate.model.ErrorResponse;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @RestControllerAdvice
@@ -19,11 +19,11 @@ import java.util.List;
 public class ErrorHandler {
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleValidationException(final ValidationException e) {
         log.warn(e.getMessage());
         return new ErrorResponse(
-                String.format("Ошибка с полем \"%s\".", e.getMessage())
+                String.format("Ошибка валидации:  \"%s\".", e.getMessage())
         );
     }
 
@@ -53,9 +53,9 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleThrowable(final Throwable e) {
-        log.error(Arrays.toString(e.getStackTrace()));
+        log.error("Error: ", e);
         return new ErrorResponse(
-                "Произошла непредвиденная ошибка.", e.getStackTrace()
+                "Произошла непредвиденная ошибка.", ExceptionUtils.getStackTrace(e)
         );
     }
 }

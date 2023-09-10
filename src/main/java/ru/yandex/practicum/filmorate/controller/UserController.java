@@ -8,7 +8,6 @@ import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @Slf4j
@@ -51,7 +50,7 @@ public class UserController {
 
 
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable("id") int id) {
+    public User getUserById(@PathVariable("id") Integer id) {
         log.info("Запрос на получение пользователя с id - " + id);
         User user = service.getUserbyId(id);
         log.info("Пользователь с id - " + id + " отправлен");
@@ -60,39 +59,39 @@ public class UserController {
 
 
     @PutMapping("/{id}/friends/{friendId}")
-    public Set<User> addFriend(@PathVariable("id") int id,
-                               @PathVariable("friendId") int friendId) {
+    public List<User> addFriend(@PathVariable("id") Integer id,
+                                @PathVariable("friendId") Integer friendId) {
         log.info("Запрос на добавление в друзья пользователей: " + id + " и " + friendId);
-        Set<User> friends = service.addFriend(id, friendId);
+        List<User> friends = service.addFriend(id, friendId);
         log.info("Пользователи: " + id + " и " + friendId + " добавлены в друзья");
         return friends;
     }
 
 
     @DeleteMapping("/{id}/friends/{friendId}")
-    public Set<User> deleteFriend(@PathVariable int id,
-                                  @PathVariable int friendId) {
+    public List<User> deleteFriend(@PathVariable Integer id,
+                                   @PathVariable Integer friendId) {
         log.info("Запрос на удаление из друзей пользователей: " + id + " и " + friendId);
-        Set<User> friends = service.removeFriend(id, friendId);
+        List<User> friends = service.removeFriend(id, friendId);
         log.info("Пользователи: " + id + " и " + friendId + " удалены из друзей");
         return friends;
     }
 
 
     @GetMapping("/{id}/friends")
-    public Set<User> getFriends(@PathVariable int id) {
+    public List<User> getFriends(@PathVariable Integer id) {
         log.info("Запрос на получение друзей пользователя - " + id);
-        Set<User> friends = service.getFriends(id);
+        List<User> friends = service.getFriends(id);
         log.info("Отправлен список друзей пользователя - " + id);
         return friends;
     }
 
 
     @GetMapping("/{id}/friends/common/{otherId}")
-    public Set<User> getSameFriends(@PathVariable int id,
-                                    @PathVariable int otherId) {
+    public List<User> getSameFriends(@PathVariable Integer id,
+                                     @PathVariable Integer otherId) {
         log.info("Запрос на получение общих друзей пользователей: " + id + " и " + otherId);
-        Set<User> friends = service.getSameFriends(id, otherId);
+        List<User> friends = service.getSameFriends(id, otherId);
         log.info("Отправлен список общих друзей пользователей: " + id + " и " + otherId);
         return friends;
     }

@@ -8,7 +8,6 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @Slf4j
@@ -50,7 +49,7 @@ public class FilmController {
 
 
     @GetMapping("/{id}")
-    public Film getFilm(@PathVariable int id) {
+    public Film getFilm(@PathVariable Integer id) {
         log.info("Запрос на получение фильма с id - " + id);
         Film film = service.getById(id);
         log.info("Фильм с id - " + id + " отправлен");
@@ -59,7 +58,7 @@ public class FilmController {
 
 
     @PutMapping("/{id}/like/{userId}")
-    public Film addLike(@PathVariable int id, @PathVariable int userId) {
+    public Film addLike(@PathVariable Integer id, @PathVariable Integer userId) {
         log.info("Запрос на добавление лайка фильму - " + id);
         Film film = service.addLike(userId, id);
         log.info("Пользователь с id - " + userId + " поставил лайк фильму - " + id);
@@ -68,7 +67,7 @@ public class FilmController {
 
 
     @DeleteMapping("/{id}/like/{userId}")
-    public Film removeLike(@PathVariable int id, @PathVariable int userId) {
+    public Film removeLike(@PathVariable Integer id, @PathVariable Integer userId) {
         log.info("Запрос на удаление лайка фильму - " + id);
         Film film = service.removeLike(id, userId);
         log.info("Пользователь с id - " + userId + " удалил лайк фильму - " + id);
@@ -77,9 +76,9 @@ public class FilmController {
 
 
     @GetMapping("/popular")
-    public Set<Film> getPopular(@RequestParam(defaultValue = "10") int count) {
+    public List<Film> getPopular(@RequestParam(defaultValue = "10") Integer count) {
         log.info("Запрос на получение списка популярных фильмов");
-        Set<Film> films = service.getPopular(count);
+        List<Film> films = service.getPopular(count);
         log.info("Список популярных фильмов отправлен");
         return films;
     }

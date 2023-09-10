@@ -2,14 +2,14 @@ package ru.yandex.practicum.filmorate.model;
 
 public class ErrorResponse {
     private final String error;
-    private StackTraceElement[] stackTrace;
+    private String stackTrace;
 
     public ErrorResponse(String error) {
         this.error = error;
     }
 
 
-    public ErrorResponse(String error, StackTraceElement[] stackTrace) {
+    public ErrorResponse(String error, String stackTrace) {
         this.error = error;
         this.stackTrace = stackTrace;
     }
@@ -19,7 +19,7 @@ public class ErrorResponse {
     }
 
 
-    public StackTraceElement[] getStackTrace() {
+    public String getStackTrace() {
         return stackTrace;
     }
 }
