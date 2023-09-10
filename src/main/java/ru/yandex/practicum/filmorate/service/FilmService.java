@@ -5,11 +5,9 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exeption.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.validator.ValidatorService;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,7 +15,6 @@ import java.util.stream.Collectors;
 public class FilmService {
     private final FilmStorage storage;
     private final UserStorage userStorage;
-    private final List<Film> popular = new ArrayList<>();
 
     @Autowired
     public FilmService(FilmStorage storage, UserStorage userStorage) {
@@ -25,26 +22,26 @@ public class FilmService {
         this.userStorage = userStorage;
     }
 
+    private Film getStorageFilmId(Integer id) { //создала приватный метод, чтобы избежать дублирования кода
+        return storage.getFilmById(id)
+                .orElseThrow(() -> new NotFoundException("Фильм с id " + id + " не найден"));
+    }
+
 
     public Film createFilm(Film film) {
-        Film film1 = storage.createFilm(film);
-        popular.add(film1);
-        return film1;
+        return storage.createFilm(film);
     }
 
 
     public Film updateFilm(Film film) {
-        Film film1 = getById(film.getId());
-        popular.remove(film1);
+        getStorageFilmId(film.getId()); // вызвала метод, чтобы проверить не выброситься ли исключение
         storage.updateFilm(film);
-        popular.add(getById(film.getId()));
-        return film;
+        return getStorageFilmId(film.getId());
     }
 
 
-    public Film getById(int id) {
-        ValidatorService.validateId(id);
-        return storage.getFilmById(id).orElseThrow(() -> new NotFoundException("Фильм с id " + id + " не найден"));
+    public Film getById(Integer id) {
+        return getStorageFilmId(id);
     }
 
 
@@ -53,37 +50,33 @@ public class FilmService {
     }
 
 
-    public Film addLike(int userId, int filmId) {
+    public Film addLike(Integer userId, Integer filmId) {
         User user = userStorage.getUserById(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
-        Film film = getById(filmId);
+        Film film = getStorageFilmId(filmId);
         List<Film> films1 = storage.getUserFilms(user);
         if (films1.contains(film)) {
             return film;
         }
         storage.addLike(user, film);
-        updateFilm(film);
-        return getById(filmId);
+        return getStorageFilmId(filmId);
     }
 
 
-    public Film removeLike(int filmId, int userId) {
-        User user = userStorage.getUserById(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
-        Film film = getById(filmId);
+    public Film removeLike(Integer filmId, Integer userId) {
+        User user = userStorage.getUserById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь c id - " + userId + " не найден"));
+        Film film = getStorageFilmId(filmId);
         List<Film> films1 = storage.getUserFilms(user);
-        if (films1.isEmpty()) {
-            throw new NotFoundException("Пользователь " + userId + " не лайкнул ни одного фильма");
-        }
-        if (!films1.contains(film)) {
-            throw new NotFoundException("Пользователь " + userId + " не лайкнул фильм с id - " + filmId);
+        if (films1.isEmpty() || !films1.contains(film)) {
+            return film;
         }
         storage.removeLike(user, film);
-        updateFilm(film);
-        return getById(filmId);
+        return getStorageFilmId(filmId);
     }
 
 
-    public List<Film> getPopular(int limit) {
-        return popular.stream()
+    public List<Film> getPopular(Integer limit) {
+        return storage.getFilms().stream()
                 .sorted((s, s1) -> Integer.compare(s1.getLikes(), s.getLikes()))
                 .limit(limit)
                 .collect(Collectors.toList());

@@ -47,7 +47,8 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public void addFriend(User user, User friend) {
-        List<User> friendsList = userFriends.containsKey(user) ? userFriends.get(user) : new ArrayList<>();
+        List<User> friendsList = userFriends.get(user);
+        if (friendsList == null) friendsList = new ArrayList<>();
         if (!friendsList.contains(friend)) {
             friendsList.add(friend);
             userFriends.put(user, friendsList);
@@ -59,6 +60,7 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public void removeFriend(User user, User friend) {
         List<User> friendsList = userFriends.get(user);
+        if (friendsList == null) return;
         if (friendsList.remove(friend)) {
             userFriends.put(user, friendsList);
             removeFriend(friend, user);
@@ -68,6 +70,7 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public List<User> getFriends(User user) {
-        return userFriends.containsKey(user) ? userFriends.get(user) : new ArrayList<>();
+        List<User> friends = userFriends.get(user);
+        return friends == null ? Collections.emptyList() : friends;
     }
 }

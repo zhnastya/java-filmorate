@@ -34,6 +34,7 @@ public class UserController {
     @PutMapping
     public User updateUser(@Valid @RequestBody User user) {
         log.info("Запрос на обновление пользователя - " + user.getId());
+//        if (user.getId() == null) throw new ValidationException("Значение id не может равняться null");
         User user1 = service.updateUser(user);
         log.info("Пользователь " + user1.getId() + " обновлен");
         return user1;

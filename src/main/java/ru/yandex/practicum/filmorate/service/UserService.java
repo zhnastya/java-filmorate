@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exeption.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.validator.ValidatorService;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.ArrayList;
@@ -24,9 +23,14 @@ public class UserService {
         return storage.createUser(user);
     }
 
+    private User getStorageUserById(Integer id) { //создала приватный метод, чтобы избежать дублирования кода
+        return storage.getUserById(id)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id - " + id + " не найден"));
+    }
+
 
     public User updateUser(User user) {
-        getUserbyId(user.getId());
+        getStorageUserById(user.getId()); // вызвала метод, чтобы проверить не выброситься ли исключение
         return storage.updateUser(user);
     }
 
@@ -37,15 +41,13 @@ public class UserService {
 
 
     public User getUserbyId(Integer id) {
-        ValidatorService.validateId(id);
-        return storage.getUserById(id)
-                .orElseThrow(() -> new NotFoundException("Пользователь с id - " + id + " не найден"));
+        return getStorageUserById(id);
     }
 
 
     public List<User> addFriend(Integer userId, Integer friendId) {
-        User user = getUserbyId(userId);
-        User friend = getUserbyId(friendId);
+        User user = getStorageUserById(userId);
+        User friend = getStorageUserById(friendId);
         List<User> friends = getFriends(userId);
         if (friends.isEmpty() || !friends.contains(friend)) {
             storage.addFriend(user, friend);
@@ -55,26 +57,26 @@ public class UserService {
 
 
     public List<User> removeFriend(int userId, int friendId) {
-        User user = getUserbyId(userId);
-        User friend = getUserbyId(friendId);
+        User user = getStorageUserById(userId);
+        User friend = getStorageUserById(friendId);
         List<User> friends = getFriends(userId);
         if (friends.isEmpty() || !friends.contains(friend)) {
-            throw new NotFoundException("Список друзей пользователя - " + userId + " пуст");
+            return friends;
         }
         storage.removeFriend(user, friend);
-        return getFriends(userId);
+        return storage.getFriends(user);
     }
 
 
     public List<User> getFriends(Integer id) {
-        User user = getUserbyId(id);
+        User user = getStorageUserById(id);
         return storage.getFriends(user);
     }
 
 
     public List<User> getSameFriends(int id, int otherId) {
-        List<User> friendsUser = getFriends(id);
-        List<User> friendsOther = getFriends(otherId);
+        List<User> friendsUser = storage.getFriends(getStorageUserById(id));
+        List<User> friendsOther = storage.getFriends(getStorageUserById(otherId));
         List<User> sameUser = new ArrayList<>();
         if (friendsUser.isEmpty() || friendsOther.isEmpty()) {
             return sameUser;
