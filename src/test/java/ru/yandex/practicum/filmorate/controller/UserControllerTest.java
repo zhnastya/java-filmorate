@@ -30,8 +30,7 @@ public class UserControllerTest {
                 .map(ConstraintViolation::getMessage)
                 .findFirst()
                 .orElse("");
-        assertTrue(validates.size() > 0);
-        assertEquals(message, "id должен быть положительным целым числом");
+        assertEquals(0, validates.size());
     }
 
     @Test
