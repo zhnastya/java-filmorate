@@ -17,7 +17,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public void addLike(User user, Film film) {
         List<Film> filmSet = userFilms.get(user);
-        if (filmSet==null) filmSet = new ArrayList<>();
+        if (filmSet == null) filmSet = new ArrayList<>();
         film.setLikes(film.getLikes() + 1);
         filmSet.add(film);
         userFilms.put(user, filmSet);
@@ -27,7 +27,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public void removeLike(User user, Film film) {
         List<Film> films1 = userFilms.get(user);
-        if (films1==null) return;
+        if (films1 == null) return;
         films1.remove(film);
         film.setLikes(film.getLikes() - 1);
         userFilms.put(user, films1);
