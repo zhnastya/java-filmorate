@@ -60,20 +60,18 @@ public class FilmController {
 
 
     @PutMapping("/{id}/like/{userId}")
-    public Film addLike(@PathVariable Integer id, @PathVariable Integer userId) {
+    public void addLike(@PathVariable Integer id, @PathVariable Integer userId) {
         log.info("Запрос на добавление лайка фильму - " + id);
-        Film film = service.addLike(userId, id);
+        service.addLike(userId, id);
         log.info("Пользователь с id - " + userId + " поставил лайк фильму - " + id);
-        return film;
     }
 
 
     @DeleteMapping("/{id}/like/{userId}")
-    public Film removeLike(@PathVariable Integer id, @PathVariable Integer userId) {
+    public void removeLike(@PathVariable Integer id, @PathVariable Integer userId) {
         log.info("Запрос на удаление лайка фильму - " + id);
-        Film film = service.removeLike(id, userId);
+        service.removeLike(id, userId);
         log.info("Пользователь с id - " + userId + " удалил лайк фильму - " + id);
-        return film;
     }
 
 

@@ -25,11 +25,10 @@ public class InMemoryUserStorage implements UserStorage {
 
 
     @Override
-    public User updateUser(User user) {
+    public void updateUser(User user) {
         String name = user.getName().isEmpty() ? user.getLogin() : user.getName();
         user.setName(name);
         users.put(user.getId(), user);
-        return user;
     }
 
 

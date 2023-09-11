@@ -30,8 +30,9 @@ public class UserService {
 
 
     public User updateUser(User user) {
-        getStorageUserById(user.getId()); // вызвала метод, чтобы проверить не выброситься ли исключение
-        return storage.updateUser(user);
+        getStorageUserById(user.getId());// вызвала метод, чтобы проверить не выброситься ли исключение
+        storage.updateUser(user);
+        return user;
     }
 
 
@@ -45,26 +46,22 @@ public class UserService {
     }
 
 
-    public List<User> addFriend(Integer userId, Integer friendId) {
+    public void addFriend(Integer userId, Integer friendId) {
         User user = getStorageUserById(userId);
         User friend = getStorageUserById(friendId);
         List<User> friends = getFriends(userId);
         if (friends.isEmpty() || !friends.contains(friend)) {
             storage.addFriend(user, friend);
         }
-        return getFriends(userId);
     }
 
 
-    public List<User> removeFriend(int userId, int friendId) {
+    public void removeFriend(int userId, int friendId) {
         User user = getStorageUserById(userId);
         User friend = getStorageUserById(friendId);
         List<User> friends = getFriends(userId);
-        if (friends.isEmpty() || !friends.contains(friend)) {
-            return friends;
-        }
+        if (friends.isEmpty() || !friends.contains(friend)) return;
         storage.removeFriend(user, friend);
-        return storage.getFriends(user);
     }
 
 

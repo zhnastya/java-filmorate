@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
+import javax.validation.ValidationException;
 import java.util.List;
 
 @RestController
@@ -34,7 +35,7 @@ public class UserController {
     @PutMapping
     public User updateUser(@Valid @RequestBody User user) {
         log.info("Запрос на обновление пользователя - " + user.getId());
-//        if (user.getId() == null) throw new ValidationException("Значение id не может равняться null");
+        if (user.getId() == null) throw new ValidationException("Значение id не может равняться null");
         User user1 = service.updateUser(user);
         log.info("Пользователь " + user1.getId() + " обновлен");
         return user1;
@@ -60,22 +61,20 @@ public class UserController {
 
 
     @PutMapping("/{id}/friends/{friendId}")
-    public List<User> addFriend(@PathVariable("id") Integer id,
-                                @PathVariable("friendId") Integer friendId) {
+    public void addFriend(@PathVariable("id") Integer id,
+                          @PathVariable("friendId") Integer friendId) {
         log.info("Запрос на добавление в друзья пользователей: " + id + " и " + friendId);
-        List<User> friends = service.addFriend(id, friendId);
+        service.addFriend(id, friendId);
         log.info("Пользователи: " + id + " и " + friendId + " добавлены в друзья");
-        return friends;
     }
 
 
     @DeleteMapping("/{id}/friends/{friendId}")
-    public List<User> deleteFriend(@PathVariable Integer id,
-                                   @PathVariable Integer friendId) {
+    public void deleteFriend(@PathVariable Integer id,
+                             @PathVariable Integer friendId) {
         log.info("Запрос на удаление из друзей пользователей: " + id + " и " + friendId);
-        List<User> friends = service.removeFriend(id, friendId);
+        service.removeFriend(id, friendId);
         log.info("Пользователи: " + id + " и " + friendId + " удалены из друзей");
-        return friends;
     }
 
 

@@ -36,7 +36,7 @@ public class FilmService {
     public Film updateFilm(Film film) {
         getStorageFilmId(film.getId()); // вызвала метод, чтобы проверить не выброситься ли исключение
         storage.updateFilm(film);
-        return getStorageFilmId(film.getId());
+        return film;
     }
 
 
@@ -50,28 +50,22 @@ public class FilmService {
     }
 
 
-    public Film addLike(Integer userId, Integer filmId) {
+    public void addLike(Integer userId, Integer filmId) {
         User user = userStorage.getUserById(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
         Film film = getStorageFilmId(filmId);
         List<Film> films1 = storage.getUserFilms(user);
-        if (films1.contains(film)) {
-            return film;
-        }
+        if (films1.contains(film)) return;
         storage.addLike(user, film);
-        return getStorageFilmId(filmId);
     }
 
 
-    public Film removeLike(Integer filmId, Integer userId) {
+    public void removeLike(Integer filmId, Integer userId) {
         User user = userStorage.getUserById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь c id - " + userId + " не найден"));
         Film film = getStorageFilmId(filmId);
         List<Film> films1 = storage.getUserFilms(user);
-        if (films1.isEmpty() || !films1.contains(film)) {
-            return film;
-        }
+        if (films1.isEmpty() || !films1.contains(film)) return;
         storage.removeLike(user, film);
-        return getStorageFilmId(filmId);
     }
 
 
