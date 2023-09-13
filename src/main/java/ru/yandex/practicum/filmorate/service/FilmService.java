@@ -53,8 +53,6 @@ public class FilmService {
     public void addLike(Integer userId, Integer filmId) {
         User user = userStorage.getUserById(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
         Film film = getStorageFilmId(filmId);
-        List<Film> films1 = storage.getUserFilms(user);
-        if (films1.contains(film)) return;
         storage.addLike(user, film);
     }
 

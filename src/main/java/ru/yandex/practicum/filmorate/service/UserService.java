@@ -49,10 +49,7 @@ public class UserService {
     public void addFriend(Integer userId, Integer friendId) {
         User user = getStorageUserById(userId);
         User friend = getStorageUserById(friendId);
-        List<User> friends = getFriends(userId);
-        if (friends.isEmpty() || !friends.contains(friend)) {
-            storage.addFriend(user, friend);
-        }
+        storage.addFriend(user, friend);
     }
 
 
