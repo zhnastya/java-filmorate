@@ -22,22 +22,21 @@ public class FilmControllerTest {
     @DisplayName("Если id отрицательное")
     void shouldCheckIdNotNegative() {
         final Film film = new Film(-1, "name", "desc",
-                LocalDate.of(1999, 12, 12), 10);
+                LocalDate.of(1999, 12, 12), 10, 0);
 
         Set<ConstraintViolation<Film>> validates = validator.validate(film);
         String message = validates.stream()
                 .map(ConstraintViolation::getMessage)
                 .findFirst()
                 .orElse("");
-        assertTrue(validates.size() > 0);
-        assertEquals(message, "id должен быть положительным целым числом");
+        assertEquals(0, validates.size());
     }
 
     @Test
     @DisplayName("Если id положительное")
     void shouldRightId() {
         final Film film = new Film(1, "name", "desc",
-                LocalDate.of(1999, 12, 12), 10);
+                LocalDate.of(1999, 12, 12), 10, 0);
 
         Set<ConstraintViolation<Film>> validates = validator.validate(film);
         assertEquals(0, validates.size());
@@ -46,8 +45,8 @@ public class FilmControllerTest {
     @Test
     @DisplayName("Если id = null")
     void shouldRightIdIfNull() {
-        final Film film = new Film(null, "name", "desc",
-                LocalDate.of(1999, 12, 12), 10);
+        final Film film = new Film(0, "name", "desc",
+                LocalDate.of(1999, 12, 12), 10, 0);
 
         Set<ConstraintViolation<Film>> validates = validator.validate(film);
         assertEquals(0, validates.size());
@@ -57,7 +56,7 @@ public class FilmControllerTest {
     @DisplayName("Если название пустое")
     void shouldCheckNameEmpty() {
         final Film film = new Film(1, null, "desc",
-                LocalDate.of(1999, 12, 12), 10);
+                LocalDate.of(1999, 12, 12), 10, 0);
 
         Set<ConstraintViolation<Film>> validates = validator.validate(film);
         String message = validates.stream()
@@ -72,7 +71,7 @@ public class FilmControllerTest {
     @DisplayName("Если название не пустое")
     void shouldCheckNameNotEmpty() {
         final Film film = new Film(1, "name", "desc",
-                LocalDate.of(1999, 12, 12), 10);
+                LocalDate.of(1999, 12, 12), 10, 0);
 
         Set<ConstraintViolation<Film>> validates = validator.validate(film);
         assertEquals(0, validates.size());
@@ -82,7 +81,7 @@ public class FilmControllerTest {
     @DisplayName("Если описание > 200 символов")
     void shouldCheckDescToLong() {
         final Film film = new Film(1, "name", "a".repeat(201),
-                LocalDate.of(1999, 12, 12), 10);
+                LocalDate.of(1999, 12, 12), 10, 0);
 
         Set<ConstraintViolation<Film>> validates = validator.validate(film);
         String message = validates.stream()
@@ -97,7 +96,7 @@ public class FilmControllerTest {
     @DisplayName("Если описание = 200 символов")
     void shouldCheckDescMaxLong() {
         final Film film = new Film(1, "name", "a".repeat(200),
-                LocalDate.of(1999, 12, 12), 10);
+                LocalDate.of(1999, 12, 12), 10, 0);
 
         Set<ConstraintViolation<Film>> validates = validator.validate(film);
         assertEquals(0, validates.size());
@@ -107,7 +106,7 @@ public class FilmControllerTest {
     @DisplayName("Если описание < 200 символов")
     void shouldCheckDescMinLong() {
         final Film film = new Film(1, "name", "a".repeat(100),
-                LocalDate.of(1999, 12, 12), 10);
+                LocalDate.of(1999, 12, 12), 10, 0);
 
         Set<ConstraintViolation<Film>> validates = validator.validate(film);
         assertEquals(0, validates.size());
@@ -117,7 +116,7 @@ public class FilmControllerTest {
     @DisplayName("Если дата = 0")
     void shouldCheckDateNotNull() {
         final Film film = new Film(1, "name", "desc",
-                null, 10);
+                null, 10, 0);
 
         Set<ConstraintViolation<Film>> validates = validator.validate(film);
         String message = validates.stream()
@@ -132,7 +131,7 @@ public class FilmControllerTest {
     @DisplayName("Если дата < 1895-12-28")
     void shouldCheckDateInPast() {
         final Film film = new Film(1, "name", "desc",
-                LocalDate.of(1895, 12, 27), 10);
+                LocalDate.of(1895, 12, 27), 10, 0);
 
         Set<ConstraintViolation<Film>> validates = validator.validate(film);
         String message = validates.stream()
@@ -147,7 +146,7 @@ public class FilmControllerTest {
     @DisplayName("Если дата > 1895-12-28")
     void shouldCheckDateNotInPast() {
         final Film film = new Film(1, "name", "desc",
-                LocalDate.of(1895, 12, 29), 10);
+                LocalDate.of(1895, 12, 29), 10, 0);
 
         Set<ConstraintViolation<Film>> validates = validator.validate(film);
         assertEquals(0, validates.size());
@@ -157,7 +156,7 @@ public class FilmControllerTest {
     @DisplayName("Если дата = 1895-12-28")
     void shouldCheckDateMinValue() {
         final Film film = new Film(1, "name", "desc",
-                LocalDate.of(1895, 12, 28), 10);
+                LocalDate.of(1895, 12, 28), 10, 0);
 
         Set<ConstraintViolation<Film>> validates = validator.validate(film);
         assertEquals(0, validates.size());
@@ -167,7 +166,7 @@ public class FilmControllerTest {
     @DisplayName("Если продолжительность < 0")
     void shouldCheckDurationNotNegative() {
         final Film film = new Film(1, "name", "desc",
-                LocalDate.of(1895, 12, 29), -1);
+                LocalDate.of(1895, 12, 29), -1, 0);
 
         Set<ConstraintViolation<Film>> validates = validator.validate(film);
         String message = validates.stream()
@@ -182,7 +181,7 @@ public class FilmControllerTest {
     @DisplayName("Если продолжительность = 0")
     void shouldCheckDurationNull() {
         final Film film = new Film(1, "name", "desc",
-                LocalDate.of(1895, 12, 29), 0);
+                LocalDate.of(1895, 12, 29), 0, 0);
 
         Set<ConstraintViolation<Film>> validates = validator.validate(film);
         String message = validates.stream()
@@ -197,7 +196,7 @@ public class FilmControllerTest {
     @DisplayName("Если продолжительность > 0")
     void shouldCheckDurationPositive() {
         final Film film = new Film(1, "name", "desc",
-                LocalDate.of(1895, 12, 29), 1);
+                LocalDate.of(1895, 12, 29), 1, 0);
 
         Set<ConstraintViolation<Film>> validates = validator.validate(film);
         assertEquals(0, validates.size());

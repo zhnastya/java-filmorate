@@ -6,7 +6,10 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import ru.yandex.practicum.filmorate.model.validator.MinimumDate;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
 @AllArgsConstructor
@@ -14,7 +17,6 @@ import java.time.LocalDate;
 @Getter
 @Slf4j
 public class Film {
-    @PositiveOrZero(message = "id должен быть положительным целым числом")
     private Integer id;
     @NotEmpty(message = "название не может быть пустым")
     private String name;
@@ -25,4 +27,5 @@ public class Film {
     private LocalDate releaseDate;
     @Positive(message = "продолжительность фильма должна быть положительной")
     private int duration;
+    private int likes;
 }

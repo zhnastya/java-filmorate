@@ -13,7 +13,6 @@ import java.time.LocalDate;
 @Getter
 @Slf4j
 public class User {
-    @PositiveOrZero(message = "id должен быть положительным целым числом")
     private Integer id;
     @NotBlank(message = "email не может быть пустым или равняться нулю")
     @Email(message = "email не валидный")
