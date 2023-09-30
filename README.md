@@ -1,33 +1,33 @@
 # java-filmorate
 Template repository for Filmorate project.
-![Диаграмма](https://github.com/zhnastya/java-filmorate/assets/123512924/9721900f-655f-4895-9dd9-dc9d4f727da7)
+![Диаграмма](https://github.com/zhnastya/java-filmorate/assets/123512924/69916c7b-d413-4b16-a773-9550eda4618f)
 
 
 Получение списка фильмов
 SELECT *
-FROM films;
+FROM film;
 
 Получение фильма по id
 SELECT *
-FROM films
+FROM film
 WHERE film_id = ?;
 
 Получение списка пользователей
 SELECT *
-FROM films;
+FROM user;
 
 Получение пользователя по id
 SELECT *
-FROM films
-WHERE film_id = ?;
+FROM user
+WHERE user_id = ?;
 
 
 Получение жанра фильма:
-SELECT t.name,
-g.name
-FROM genre AS g
-JOIN films AS t ON g.genre_id = t.genre_id
-WHERE t.film_id = ?;
+SELECT k.name
+FROM film AS g
+JOIN film_genre AS t ON g.film_id = t.film_id
+JOIN genre AS k ON t.genre_id=k.genre_id
+WHERE g.film_id = ?;
 
 
 Получение рейтинга фильма:
