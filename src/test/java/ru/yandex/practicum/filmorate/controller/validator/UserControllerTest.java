@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.controller;
+package ru.yandex.practicum.filmorate.controller.validator;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,10 +22,10 @@ public class UserControllerTest {
     @Test
     @DisplayName("Если id < 0")
     void shouldThrowIfIdNegative() {
-        final User user = new User(-1, "email@email.ru", "login", "name",
+        final User user1 = new User(-1, "email@email.ru", "login", "name",
                 LocalDate.of(1999, 12, 12));
 
-        Set<ConstraintViolation<User>> validates = validator.validate(user);
+        Set<ConstraintViolation<User>> validates = validator.validate(user1);
         String message = validates.stream()
                 .map(ConstraintViolation::getMessage)
                 .findFirst()

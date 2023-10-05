@@ -1,16 +1,16 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Builder;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
 
 @AllArgsConstructor
-@Setter
-@Getter
+@Builder
+@Data
 @Slf4j
 public class User {
     private Integer id;

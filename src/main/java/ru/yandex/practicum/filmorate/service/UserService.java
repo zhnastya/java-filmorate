@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exeption.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -10,27 +10,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
     private final UserStorage storage;
-
-    @Autowired
-    public UserService(UserStorage storage) {
-        this.storage = storage;
-    }
 
 
     public User createUser(User user) {
         return storage.createUser(user);
     }
 
-    private User getStorageUserById(Integer id) { //создала приватный метод, чтобы избежать дублирования кода
-        return storage.getUserById(id)
-                .orElseThrow(() -> new NotFoundException("Пользователь с id - " + id + " не найден"));
-    }
-
 
     public User updateUser(User user) {
-        getStorageUserById(user.getId());// вызвала метод, чтобы проверить не выброситься ли исключение
         storage.updateUser(user);
         return user;
     }
@@ -42,35 +32,40 @@ public class UserService {
 
 
     public User getUserbyId(Integer id) {
-        return getStorageUserById(id);
+        return getCheckUserThrow(id);
+    }
+    private User getCheckUserThrow(Integer id){
+       return storage.getUserById(id)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " + id + " не найден"));
     }
 
 
     public void addFriend(Integer userId, Integer friendId) {
-        User user = getStorageUserById(userId);
-        User friend = getStorageUserById(friendId);
-        storage.addFriend(user, friend);
+        getCheckUserThrow(userId);
+        getCheckUserThrow(friendId);
+        storage.addFriend(userId, friendId);
     }
 
 
     public void removeFriend(int userId, int friendId) {
-        User user = getStorageUserById(userId);
-        User friend = getStorageUserById(friendId);
+        getCheckUserThrow(userId);
+        User friend = getCheckUserThrow(friendId);
         List<User> friends = getFriends(userId);
         if (friends.isEmpty() || !friends.contains(friend)) return;
-        storage.removeFriend(user, friend);
+        storage.removeFriend(userId, friendId);
     }
 
 
     public List<User> getFriends(Integer id) {
-        User user = getStorageUserById(id);
-        return storage.getFriends(user);
+        return storage.getFriends(id);
     }
 
 
     public List<User> getSameFriends(int id, int otherId) {
-        List<User> friendsUser = storage.getFriends(getStorageUserById(id));
-        List<User> friendsOther = storage.getFriends(getStorageUserById(otherId));
+        getCheckUserThrow(id);
+        getCheckUserThrow(otherId);
+        List<User> friendsUser = storage.getFriends(id);
+        List<User> friendsOther = storage.getFriends(otherId);
         List<User> sameUser = new ArrayList<>();
         if (friendsUser.isEmpty() || friendsOther.isEmpty()) {
             return sameUser;
