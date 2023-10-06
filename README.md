@@ -1,23 +1,4 @@
 # java-filmorate
-Template repository for Filmorate project.
-https://dbdiagram.io/d/6516c4a2ffbf5169f0bd6690
-Получение списка фильмов
-SELECT *
-FROM films;
-
-Получение фильма по id
-SELECT *
-FROM films
-WHERE film_id = ?;
-
-Получение жанра фильма:
-SELECT t.name,
-g.name
-FROM genre AS g
-JOIN films AS t ON g.genre_id = t.genre_id
-WHERE t.film_id = ?;
-
-
 Получение рейтинга фильма:
 SELECT t.name,
 r.name
