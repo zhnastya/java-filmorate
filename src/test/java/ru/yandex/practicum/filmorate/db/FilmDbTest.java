@@ -32,7 +32,7 @@ public class FilmDbTest {
 
 
     @BeforeEach
-    public void createParams(){
+    public void createParams() {
         RateMPA rateMPA = new RateMPA(1, null);
         Genre genre = new Genre(1, null);
         User user = User.builder()
@@ -91,7 +91,7 @@ public class FilmDbTest {
     @Test
     public void testAddGenreToFilmId() {
 
-        assertDoesNotThrow(()->storage.addGenresToFilm(new Genre(2, null), 1));
+        assertDoesNotThrow(() -> storage.addGenresToFilm(new Genre(2, null), 1));
         assertEquals(storage.getGenreByFilmID(1).size(), 2);
         assertEquals(storage.getGenreByFilmID(1).get(1).getName(), "Драма");
     }
@@ -104,15 +104,15 @@ public class FilmDbTest {
     }
 
     @Test
-    public void testDeleteAllGenresByFilm(){
+    public void testDeleteAllGenresByFilm() {
         storage.deleteAllGenresByFilm(1);
 
         assertEquals(0, storage.getGenreByFilmID(1).size());
     }
 
     @Test
-    public void testUpdateFilm(){
-        Film film= Film.builder()
+    public void testUpdateFilm() {
+        Film film = Film.builder()
                 .id(1)
                 .name("new")
                 .description("new")
@@ -127,14 +127,14 @@ public class FilmDbTest {
     }
 
     @Test
-    public void testAddLikeToFilm(){
+    public void testAddLikeToFilm() {
         storage.addLike(1, 1);
 
         assertEquals(1, storage.getFilmById(1).orElseThrow().getLikes());
     }
 
     @Test
-    public void testRemoveLikeToFilm(){
+    public void testRemoveLikeToFilm() {
         storage.addLike(1, 1);
         storage.removeLike(1, 1);
 
@@ -142,7 +142,7 @@ public class FilmDbTest {
     }
 
     @Test
-    public void testGetUserFilms(){
+    public void testGetUserFilms() {
         storage.addLike(1, 1);
         List<Film> films = storage.getUserFilms(userStorage.getUserById(1).orElseThrow());
 

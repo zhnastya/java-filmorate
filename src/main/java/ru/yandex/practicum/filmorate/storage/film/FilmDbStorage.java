@@ -21,27 +21,29 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class FilmDbStorage implements FilmStorage{
+public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
 
-    private Map<String, Object> getParametrs(Film film){
+    private Map<String, Object> getParametrs(Film film) {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("name", film.getName());
         parameters.put("description", film.getDescription());
         parameters.put("release_date", film.getReleaseDate());
         parameters.put("duration", film.getDuration());
         parameters.put("likes", film.getLikes());
-        parameters.put("mpa_id", film.getMpa()!=null?film.getMpa().getId():null);
+        parameters.put("mpa_id", film.getMpa() != null ? film.getMpa().getId() : null);
         parameters.put("film_id", film.getId());
         return parameters;
     }
 
-    public void cleanAllFilm(){
+
+    public void cleanAllFilm() {
         String sql = "DELETE FROM films";
         jdbcTemplate.execute(sql);
     }
+
 
     @Override
     public List<Genre> getGenreByFilmID(Integer id) {
@@ -62,7 +64,7 @@ public class FilmDbStorage implements FilmStorage{
 
 
     @Override
-    public RateMPA getRateByFilmID(Integer id){
+    public RateMPA getRateByFilmID(Integer id) {
         try {
             String sql = "SELECT mr.mpa_id, " +
                     "mr.name " +
@@ -75,10 +77,11 @@ public class FilmDbStorage implements FilmStorage{
             return namedParameterJdbcTemplate.queryForObject(sql, mapper,
                     (rs, rowNum) -> new RateMPA(rs.getInt("mpa_id"),
                             rs.getString("name")));
-        }catch (EmptyResultDataAccessException  e) {
+        } catch (EmptyResultDataAccessException e) {
             throw new NotFoundException(String.format("Фильм с id %d не найден.", id));
         }
     }
+
 
     @Override
     public void addGenresToFilm(Genre genre, Integer filmId) {
@@ -89,7 +92,7 @@ public class FilmDbStorage implements FilmStorage{
                 "AND f.genre_id = val.genre_id " +
                 "WHEN NOT MATCHED THEN " +
                 "INSERT " +
-                "VALUES (val.film_id, val.genre_id) "+
+                "VALUES (val.film_id, val.genre_id) " +
                 "WHEN MATCHED THEN " +
                 "UPDATE " +
                 "SET f.film_id= :film_id, " +
@@ -106,10 +109,11 @@ public class FilmDbStorage implements FilmStorage{
         }
     }
 
+
     @Override
     public Genre getGenreById(Integer id) {
         try {
-            String sql = "SELECT * "+
+            String sql = "SELECT * " +
                     "FROM genres  " +
                     "WHERE genre_id = :genre_id";
 
@@ -118,7 +122,7 @@ public class FilmDbStorage implements FilmStorage{
             return namedParameterJdbcTemplate.queryForObject(sql, mapper,
                     (rs, rowNum) -> new Genre(rs.getInt("genre_id"),
                             rs.getString("name")));
-        }catch (EmptyResultDataAccessException  e) {
+        } catch (EmptyResultDataAccessException e) {
             throw new NotFoundException(String.format("Жанр с id %d не найден.", id));
         }
     }
@@ -145,7 +149,7 @@ public class FilmDbStorage implements FilmStorage{
     @Override
     public RateMPA getRateById(Integer id) {
         try {
-            String sql = "SELECT * "+
+            String sql = "SELECT * " +
                     "FROM mpa_ratings  " +
                     "WHERE mpa_id = :mpa_id";
 
@@ -154,7 +158,7 @@ public class FilmDbStorage implements FilmStorage{
             return namedParameterJdbcTemplate.queryForObject(sql, mapper,
                     (rs, rowNum) -> new RateMPA(rs.getInt("mpa_id"),
                             rs.getString("name")));
-        }catch (EmptyResultDataAccessException  e) {
+        } catch (EmptyResultDataAccessException e) {
             throw new NotFoundException(String.format("Рейтинг с id %d не найден.", id));
         }
     }
@@ -180,11 +184,11 @@ public class FilmDbStorage implements FilmStorage{
                 .usingGeneratedKeyColumns("film_id");
         film.setId(simpleJdbcInsert.executeAndReturnKey(getParametrs(film)).intValue());
 
-        if(film.getGenres() != null) {
+        if (film.getGenres() != null) {
             List<Genre> genres = film.getGenres().stream()
                     .map(Genre::getId)
                     .map(this::getGenreById)
-                    .peek(genre->addGenresToFilm(genre, film.getId()))
+                    .peek(genre -> addGenresToFilm(genre, film.getId()))
                     .collect(Collectors.toList());
             film.setGenres(genres);
         } else {
@@ -218,7 +222,7 @@ public class FilmDbStorage implements FilmStorage{
                     addGenresToFilm(genre, film.getId());
                 }
             }
-        }catch (EmptyResultDataAccessException e) {
+        } catch (EmptyResultDataAccessException e) {
             throw new NotFoundException("Неверный id пользователя или фильма");
         }
     }
@@ -230,15 +234,15 @@ public class FilmDbStorage implements FilmStorage{
                 "FROM films";
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> new Film(
-                 rs.getInt("film_id"),
-                 rs.getString("name"),
-                 rs.getString("description"),
-                 rs.getDate("release_date").toLocalDate(),
-                 rs.getInt("duration"),
-                 rs.getInt("likes"),
-                 getRateByFilmID(rs.getInt("film_id")),
-                 getGenreByFilmID(rs.getInt("film_id"))
-         ));
+                rs.getInt("film_id"),
+                rs.getString("name"),
+                rs.getString("description"),
+                rs.getDate("release_date").toLocalDate(),
+                rs.getInt("duration"),
+                rs.getInt("likes"),
+                getRateByFilmID(rs.getInt("film_id")),
+                getGenreByFilmID(rs.getInt("film_id"))
+        ));
     }
 
 
@@ -262,10 +266,10 @@ public class FilmDbStorage implements FilmStorage{
                             getRateByFilmID(rs.getInt("film_id")),
                             getGenreByFilmID(rs.getInt("film_id"))
                     )));
-        }catch (EmptyResultDataAccessException e) {
+        } catch (EmptyResultDataAccessException e) {
             throw new NotFoundException("Неверный id пользователя или фильма");
         }
-        }
+    }
 
 
     @Override
@@ -294,6 +298,7 @@ public class FilmDbStorage implements FilmStorage{
         }
     }
 
+
     @Override
     public void removeLike(Integer userId, Integer filmId) {
         try {
@@ -314,6 +319,7 @@ public class FilmDbStorage implements FilmStorage{
             throw new NotFoundException("Неверный id пользователя или фильма");
         }
     }
+
 
     @Override
     public List<Film> getUserFilms(User user) {
@@ -338,10 +344,11 @@ public class FilmDbStorage implements FilmStorage{
                             getRateByFilmID(rs.getInt("film_id")),
                             getGenreByFilmID(rs.getInt("film_id")))));
 
-        }catch (EmptyResultDataAccessException e) {
+        } catch (EmptyResultDataAccessException e) {
             throw new NotFoundException(String.format("Пользователь с id %d не найден.", user.getId()));
         }
     }
+
 
     @Override
     public List<Genre> getAllGenres() {

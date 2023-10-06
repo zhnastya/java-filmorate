@@ -23,7 +23,7 @@ public class UserDbTest {
     private final UserDbStorage userStorage;
 
     @BeforeEach
-    public void createParams(){
+    public void createParams() {
         User user = User.builder()
                 .name("name")
                 .login("login")
@@ -34,7 +34,7 @@ public class UserDbTest {
     }
 
     @Test
-    public void shouldUpdate(){
+    public void shouldUpdate() {
         User user = new User(1, "email@email.ru", "new", "new",
                 LocalDate.of(2001, 1, 1));
         userStorage.updateUser(user);
@@ -43,12 +43,12 @@ public class UserDbTest {
     }
 
     @Test
-    public void shouldGetAllUsers(){
+    public void shouldGetAllUsers() {
         assertEquals(1, userStorage.getUsers().size());
     }
 
     @Test
-    public void shouldGetUserById(){
+    public void shouldGetUserById() {
         User user = userStorage.getUserById(1).orElse(null);
 
         assertNotNull(user);
@@ -56,7 +56,7 @@ public class UserDbTest {
     }
 
     @Test
-    public void shouldAddFriend(){
+    public void shouldAddFriend() {
         User friend = User.builder()
                 .name("name")
                 .login("login")
@@ -72,7 +72,7 @@ public class UserDbTest {
     }
 
     @Test
-    public void shouldRemoveFriend(){
+    public void shouldRemoveFriend() {
         User friend = User.builder()
                 .name("name")
                 .login("login")

@@ -22,14 +22,22 @@ public interface FilmStorage {
     void removeLike(Integer userId, Integer filmId);
 
     List<Film> getUserFilms(User user);
-    List<Genre> getAllGenres();
-    List<RateMPA> getAllRatings();
-    List<Genre> getGenreByFilmID(Integer id);
-    void addGenresToFilm(Genre genre, Integer filmId);
-    Genre getGenreById(Integer id);
-    RateMPA getRateByFilmID(Integer id);
-    void addRateToFilm(RateMPA rate, Integer filmId);
-    RateMPA getRateById(Integer id);
-    void deleteAllGenresByFilm(Integer filmId);
 
+    List<Genre> getAllGenres();
+
+    List<RateMPA> getAllRatings();
+
+    List<Genre> getGenreByFilmID(Integer id);
+
+    void addGenresToFilm(Genre genre, Integer filmId);
+
+    Genre getGenreById(Integer id);
+
+    RateMPA getRateByFilmID(Integer id);
+
+    void addRateToFilm(RateMPA rate, Integer filmId);
+
+    RateMPA getRateById(Integer id);
+
+    void deleteAllGenresByFilm(Integer filmId);
 }

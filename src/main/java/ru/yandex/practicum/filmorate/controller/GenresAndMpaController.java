@@ -10,11 +10,11 @@ import ru.yandex.practicum.filmorate.model.RateMPA;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.List;
+
 @RestController
 @Slf4j
 @RequiredArgsConstructor
 public class GenresAndMpaController {
-
     private final FilmService service;
 
     @GetMapping("/genres")

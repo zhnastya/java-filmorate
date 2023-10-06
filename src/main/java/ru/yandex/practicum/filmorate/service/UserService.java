@@ -34,8 +34,10 @@ public class UserService {
     public User getUserbyId(Integer id) {
         return getCheckUserThrow(id);
     }
-    private User getCheckUserThrow(Integer id){
-       return storage.getUserById(id)
+
+
+    private User getCheckUserThrow(Integer id) {
+        return storage.getUserById(id)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id " + id + " не найден"));
     }
 

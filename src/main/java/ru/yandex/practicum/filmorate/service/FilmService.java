@@ -19,19 +19,19 @@ public class FilmService {
     private final FilmStorage storage;
     private final UserStorage userStorage;
 
-    public Genre getGenreById(Integer id){
+    public Genre getGenreById(Integer id) {
         return storage.getGenreById(id);
     }
 
-    public List<Genre> getAllGenres(){
+    public List<Genre> getAllGenres() {
         return storage.getAllGenres();
     }
 
-    public List<RateMPA> getAllRatings(){
+    public List<RateMPA> getAllRatings() {
         return storage.getAllRatings();
     }
 
-    public RateMPA getMpaById(Integer id){
+    public RateMPA getMpaById(Integer id) {
         return storage.getRateById(id);
     }
 
