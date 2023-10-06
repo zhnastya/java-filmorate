@@ -10,16 +10,6 @@ SELECT *
 FROM films
 WHERE film_id = ?;
 
-Получение списка пользователей
-SELECT *
-FROM films;
-
-Получение пользователя по id
-SELECT *
-FROM films
-WHERE film_id = ?;
-
-
 Получение жанра фильма:
 SELECT t.name,
 g.name
