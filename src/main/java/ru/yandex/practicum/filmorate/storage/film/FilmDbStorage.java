@@ -2,9 +2,7 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
@@ -15,18 +13,15 @@ import ru.yandex.practicum.filmorate.model.RateMPA;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
-@Qualifier("FilmDbStorage")
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class FilmDbStorage implements FilmStorage {
-    private final JdbcTemplate jdbcTemplate;
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
 
-    private Map<String, Object> getParametrs(Film film) {
+    private Map<String, Object> getParams(Film film) {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("name", film.getName());
         parameters.put("description", film.getDescription());
@@ -38,15 +33,65 @@ public class FilmDbStorage implements FilmStorage {
         return parameters;
     }
 
+    private List<Genre> getFilmGenres(int filmId) {
+        String sql = "SELECT g.genre_id, " +
+                "g.name " +
+                "FROM film_genre AS fg " +
+                "JOIN genres AS g ON fg.genre_id = g.genre_id " +
+                "WHERE fg.film_id = :film_id";
+        Map<String, Object> map = new HashMap<>();
+        map.put("film_id", filmId);
 
-    public void cleanAllFilm() {
-        String sql = "DELETE FROM films";
-        jdbcTemplate.execute(sql);
+        return new ArrayList<>(namedParameterJdbcTemplate.query(sql, map, (rs1, rowNum) -> new Genre(
+                rs1.getInt("genre_id"),
+                rs1.getString("name"))));
+    }
+
+
+    private void updateGenresByFilm(Integer filmId, Integer genreId) {
+        String sql = "MERGE " +
+                "INTO film_genre AS f " +
+                "USING VALUES (:film_id, :genre_id) AS val(film_id, genre_id) " +
+                "ON f.film_id = val.film_id " +
+                "AND f.genre_id = val.genre_id " +
+                "WHEN NOT MATCHED THEN " +
+                "INSERT " +
+                "VALUES (val.film_id, val.genre_id) " +
+                "WHEN MATCHED THEN " +
+                "UPDATE " +
+                "SET f.film_id= :film_id, " +
+                "f.genre_id = :genre_id";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("film_id", filmId);
+        params.put("genre_id", genreId);
+        namedParameterJdbcTemplate.update(sql, params);
+    }
+
+
+    private List<Film> getAllFilms(String sql) {
+        return namedParameterJdbcTemplate.query(sql,
+                rs -> {
+                    List<Film> list = new ArrayList<>();
+                    while (rs.next()) {
+                        Film film = new Film();
+                        film.setId(rs.getInt("film_id"));
+                        film.setName(rs.getString("name"));
+                        film.setDescription(rs.getString("description"));
+                        film.setReleaseDate(rs.getDate("release_date").toLocalDate());
+                        film.setDuration(rs.getInt("duration"));
+                        film.setLikes(rs.getInt("likes"));
+                        film.setMpa(getRateByFilmId(film.getId()));
+                        film.setGenres(getFilmGenres(film.getId()));
+                        list.add(film);
+                    }
+                    return list;
+                });
     }
 
 
     @Override
-    public List<Genre> getGenreByFilmID(Integer id) {
+    public List<Genre> getGenreByFilmId(Integer id) {
         String sql = "SELECT g.genre_id, " +
                 "g.name " +
                 "FROM film_genre AS f " +
@@ -64,7 +109,7 @@ public class FilmDbStorage implements FilmStorage {
 
 
     @Override
-    public RateMPA getRateByFilmID(Integer id) {
+    public RateMPA getRateByFilmId(Integer id) {
         try {
             String sql = "SELECT mr.mpa_id, " +
                     "mr.name " +
@@ -85,46 +130,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void addGenresToFilm(Genre genre, Integer filmId) {
-        String sql = "MERGE " +
-                "INTO film_genre AS f " +
-                "USING VALUES (:film_id, :genre_id) AS val(film_id, genre_id) " +
-                "ON f.film_id = val.film_id " +
-                "AND f.genre_id = val.genre_id " +
-                "WHEN NOT MATCHED THEN " +
-                "INSERT " +
-                "VALUES (val.film_id, val.genre_id) " +
-                "WHEN MATCHED THEN " +
-                "UPDATE " +
-                "SET f.film_id= :film_id, " +
-                "f.genre_id = :genre_id";
-
-        Map<String, Object> params = new HashMap<>();
-        params.put("film_id", filmId);
-        params.put("genre_id", genre.getId());
-        int rows = namedParameterJdbcTemplate.update(sql, params);
-        if (rows == 0) {
-            log.warn("Фильм с id {} не найден.", filmId);
-            throw new NotFoundException(
-                    String.format("Фильм с id %d не найден.", filmId));
-        }
-    }
-
-
-    @Override
-    public Genre getGenreById(Integer id) {
-        try {
-            String sql = "SELECT * " +
-                    "FROM genres  " +
-                    "WHERE genre_id = :genre_id";
-
-            Map<String, Object> mapper = new HashMap<>();
-            mapper.put("genre_id", id);
-            return namedParameterJdbcTemplate.queryForObject(sql, mapper,
-                    (rs, rowNum) -> new Genre(rs.getInt("genre_id"),
-                            rs.getString("name")));
-        } catch (EmptyResultDataAccessException e) {
-            throw new NotFoundException(String.format("Жанр с id %d не найден.", id));
-        }
+        updateGenresByFilm(filmId, genre.getId());
     }
 
 
@@ -137,30 +143,7 @@ public class FilmDbStorage implements FilmStorage {
         mapper.put("film_id", filmId);
         mapper.put("mpa_id", rate.getId());
 
-        int rows = namedParameterJdbcTemplate.update(sql, mapper);
-        if (rows == 0) {
-            log.warn("Фильм с id {} не найден.", filmId);
-            throw new NotFoundException(
-                    String.format("Фильм с id %d не найден.", filmId));
-        }
-    }
-
-
-    @Override
-    public RateMPA getRateById(Integer id) {
-        try {
-            String sql = "SELECT * " +
-                    "FROM mpa_ratings  " +
-                    "WHERE mpa_id = :mpa_id";
-
-            Map<String, Object> mapper = new HashMap<>();
-            mapper.put("mpa_id", id);
-            return namedParameterJdbcTemplate.queryForObject(sql, mapper,
-                    (rs, rowNum) -> new RateMPA(rs.getInt("mpa_id"),
-                            rs.getString("name")));
-        } catch (EmptyResultDataAccessException e) {
-            throw new NotFoundException(String.format("Рейтинг с id %d не найден.", id));
-        }
+        namedParameterJdbcTemplate.update(sql, mapper);
     }
 
 
@@ -179,20 +162,14 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Film createFilm(Film film) {
 
-        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
+        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(namedParameterJdbcTemplate.getJdbcTemplate())
                 .withTableName("films")
                 .usingGeneratedKeyColumns("film_id");
-        film.setId(simpleJdbcInsert.executeAndReturnKey(getParametrs(film)).intValue());
-
+        film.setId(simpleJdbcInsert.executeAndReturnKey(getParams(film)).intValue());
         if (film.getGenres() != null) {
-            List<Genre> genres = film.getGenres().stream()
-                    .map(Genre::getId)
-                    .map(this::getGenreById)
-                    .peek(genre -> addGenresToFilm(genre, film.getId()))
-                    .collect(Collectors.toList());
-            film.setGenres(genres);
-        } else {
-            film.setGenres(new ArrayList<>());
+            for (Genre genre : film.getGenres()) {
+                addGenresToFilm(genre, film.getId());
+            }
         }
         return film;
     }
@@ -210,16 +187,11 @@ public class FilmDbStorage implements FilmStorage {
                     "mpa_id = :mpa_id " +
                     "WHERE film_id = :film_id";
 
-            int rows = namedParameterJdbcTemplate.update(sql, getParametrs(film));
-            if (rows == 0) {
-                log.warn("Фильм с id {} не найден.", film.getId());
-                throw new NotFoundException(
-                        String.format("Фильм с id %d не найден.", film.getId()));
-            }
+            namedParameterJdbcTemplate.update(sql, getParams(film));
             deleteAllGenresByFilm(film.getId());
-            if (film.getGenres() != null) {
+            if (film.getGenres() != null && !film.getGenres().isEmpty()) {
                 for (Genre genre : film.getGenres()) {
-                    addGenresToFilm(genre, film.getId());
+                    updateGenresByFilm(film.getId(), genre.getId());
                 }
             }
         } catch (EmptyResultDataAccessException e) {
@@ -233,16 +205,7 @@ public class FilmDbStorage implements FilmStorage {
         String sql = "SELECT *" +
                 "FROM films";
 
-        return jdbcTemplate.query(sql, (rs, rowNum) -> new Film(
-                rs.getInt("film_id"),
-                rs.getString("name"),
-                rs.getString("description"),
-                rs.getDate("release_date").toLocalDate(),
-                rs.getInt("duration"),
-                rs.getInt("likes"),
-                getRateByFilmID(rs.getInt("film_id")),
-                getGenreByFilmID(rs.getInt("film_id"))
-        ));
+        return getAllFilms(sql);
     }
 
 
@@ -263,8 +226,8 @@ public class FilmDbStorage implements FilmStorage {
                             rs.getDate("release_date").toLocalDate(),
                             rs.getInt("duration"),
                             rs.getInt("likes"),
-                            getRateByFilmID(rs.getInt("film_id")),
-                            getGenreByFilmID(rs.getInt("film_id"))
+                            getRateByFilmId(rs.getInt("film_id")),
+                            getGenreByFilmId(rs.getInt("film_id"))
                     )));
         } catch (EmptyResultDataAccessException e) {
             throw new NotFoundException("Неверный id пользователя или фильма");
@@ -273,7 +236,7 @@ public class FilmDbStorage implements FilmStorage {
 
 
     @Override
-    public void addLike(Integer userId, Integer filmId) {
+    public void addLike(User user, Film film) {
         try {
 
             String sql = "MERGE " +
@@ -289,8 +252,8 @@ public class FilmDbStorage implements FilmStorage {
                     "WHERE film_id = :film_id";
 
             Map<String, Object> params = new HashMap<>();
-            params.put("film_id", filmId);
-            params.put("user_id", userId);
+            params.put("film_id", film.getId());
+            params.put("user_id", user.getId());
             namedParameterJdbcTemplate.update(sql, params);
 
         } catch (EmptyResultDataAccessException e) {
@@ -341,28 +304,11 @@ public class FilmDbStorage implements FilmStorage {
                             rs.getDate("release_date").toLocalDate(),
                             rs.getInt("duration"),
                             rs.getInt("likes"),
-                            getRateByFilmID(rs.getInt("film_id")),
-                            getGenreByFilmID(rs.getInt("film_id")))));
+                            getRateByFilmId(rs.getInt("film_id")),
+                            getGenreByFilmId(rs.getInt("film_id")))));
 
         } catch (EmptyResultDataAccessException e) {
             throw new NotFoundException(String.format("Пользователь с id %d не найден.", user.getId()));
         }
-    }
-
-
-    @Override
-    public List<Genre> getAllGenres() {
-        String sql = "SELECT * " +
-                "FROM genres";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> new Genre(rs.getInt("genre_id"),
-                rs.getString("name")));
-    }
-
-    @Override
-    public List<RateMPA> getAllRatings() {
-        String sql = "SELECT * " +
-                "FROM mpa_ratings";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> new RateMPA(rs.getInt("mpa_id"),
-                rs.getString("name")));
     }
 }

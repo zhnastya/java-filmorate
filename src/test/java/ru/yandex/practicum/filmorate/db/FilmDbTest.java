@@ -70,12 +70,11 @@ public class FilmDbTest {
         List<Film> films = storage.getFilms();
 
         assertEquals(1, films.size());
-        assertEquals(films.get(0), storage.getFilmById(1).orElse(null));
     }
 
     @Test
     public void testFindGenreByFilm() {
-        List<Genre> genre = storage.getGenreByFilmID(1);
+        List<Genre> genre = storage.getGenreByFilmId(1);
 
         assertEquals(1, genre.size());
         assertEquals(genre.get(0).getName(), "Комедия");
@@ -83,7 +82,7 @@ public class FilmDbTest {
 
     @Test
     public void testFindRateByFilm() {
-        RateMPA rate = storage.getRateByFilmID(1);
+        RateMPA rate = storage.getRateByFilmId(1);
 
         assertEquals(rate.getName(), "G");
     }
@@ -92,22 +91,22 @@ public class FilmDbTest {
     public void testAddGenreToFilmId() {
 
         assertDoesNotThrow(() -> storage.addGenresToFilm(new Genre(2, null), 1));
-        assertEquals(storage.getGenreByFilmID(1).size(), 2);
-        assertEquals(storage.getGenreByFilmID(1).get(1).getName(), "Драма");
+        assertEquals(storage.getGenreByFilmId(1).size(), 2);
+        assertEquals(storage.getGenreByFilmId(1).get(1).getName(), "Драма");
     }
 
     @Test
     public void testAddRateToFilmId() {
         storage.addRateToFilm(new RateMPA(2, null), 1);
 
-        assertEquals(storage.getRateByFilmID(1).getName(), "PG");
+        assertEquals(storage.getRateByFilmId(1).getName(), "PG");
     }
 
     @Test
     public void testDeleteAllGenresByFilm() {
         storage.deleteAllGenresByFilm(1);
 
-        assertEquals(0, storage.getGenreByFilmID(1).size());
+        assertEquals(0, storage.getGenreByFilmId(1).size());
     }
 
     @Test
@@ -122,20 +121,38 @@ public class FilmDbTest {
                 .mpa(new RateMPA(3, "PG-13"))
                 .build();
         storage.updateFilm(film);
+        Film film1 = storage.getFilmById(1).orElseThrow();
 
-        assertEquals(storage.getFilmById(1).orElse(null), film);
+        assertThat(film1.getName())
+                .isEqualTo(film.getName());
+        assertThat(film1.getDescription())
+                .isEqualTo(film.getDescription());
+        assertThat(film1.getDuration())
+                .isEqualTo(film.getDuration());
+        assertThat(film1.getReleaseDate())
+                .isEqualTo(film.getReleaseDate());
+        assertThat(film1.getLikes())
+                .isEqualTo(film.getLikes());
+        assertThat(film1.getGenres().get(0).getName())
+                .isEqualTo("Мультфильм");
+        assertThat(film1.getMpa().getName())
+                .isEqualTo("PG-13");
     }
 
     @Test
     public void testAddLikeToFilm() {
-        storage.addLike(1, 1);
+        Film film = storage.getFilmById(1).orElseThrow();
+        User user = userStorage.getUserById(1).orElseThrow();
+        storage.addLike(user, film);
 
         assertEquals(1, storage.getFilmById(1).orElseThrow().getLikes());
     }
 
     @Test
     public void testRemoveLikeToFilm() {
-        storage.addLike(1, 1);
+        Film film = storage.getFilmById(1).orElseThrow();
+        User user = userStorage.getUserById(1).orElseThrow();
+        storage.addLike(user, film);
         storage.removeLike(1, 1);
 
         assertEquals(0, storage.getFilmById(1).orElseThrow().getLikes());
@@ -143,10 +160,11 @@ public class FilmDbTest {
 
     @Test
     public void testGetUserFilms() {
-        storage.addLike(1, 1);
+        Film film = storage.getFilmById(1).orElseThrow();
+        User user = userStorage.getUserById(1).orElseThrow();
+        storage.addLike(user, film);
         List<Film> films = storage.getUserFilms(userStorage.getUserById(1).orElseThrow());
 
         assertEquals(1, films.size());
-        assertEquals(films.get(0), storage.getFilmById(1).orElseThrow());
     }
 }

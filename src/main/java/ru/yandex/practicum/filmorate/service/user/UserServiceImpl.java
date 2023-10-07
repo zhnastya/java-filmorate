@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.service;
+package ru.yandex.practicum.filmorate.service.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -11,27 +11,32 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class UserServiceImpl implements UserService {
     private final UserStorage storage;
 
 
+    @Override
     public User createUser(User user) {
         return storage.createUser(user);
     }
 
 
+    @Override
     public User updateUser(User user) {
+        getCheckUserThrow(user.getId());
         storage.updateUser(user);
         return user;
     }
 
 
+    @Override
     public List<User> getUsers() {
         return storage.getUsers();
     }
 
 
-    public User getUserbyId(Integer id) {
+    @Override
+    public User getUserById(Integer id) {
         return getCheckUserThrow(id);
     }
 
@@ -42,6 +47,7 @@ public class UserService {
     }
 
 
+    @Override
     public void addFriend(Integer userId, Integer friendId) {
         getCheckUserThrow(userId);
         getCheckUserThrow(friendId);
@@ -49,6 +55,7 @@ public class UserService {
     }
 
 
+    @Override
     public void removeFriend(int userId, int friendId) {
         getCheckUserThrow(userId);
         User friend = getCheckUserThrow(friendId);
@@ -58,11 +65,13 @@ public class UserService {
     }
 
 
+    @Override
     public List<User> getFriends(Integer id) {
         return storage.getFriends(id);
     }
 
 
+    @Override
     public List<User> getSameFriends(int id, int otherId) {
         getCheckUserThrow(id);
         getCheckUserThrow(otherId);

@@ -12,7 +12,7 @@ import java.time.LocalDate;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class FilmControllerTest {
     ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
@@ -64,7 +64,7 @@ public class FilmControllerTest {
                 .map(ConstraintViolation::getMessage)
                 .findFirst()
                 .orElse("");
-        assertTrue(validates.size() > 0);
+        assertFalse(validates.isEmpty());
         assertEquals(message, "название не может быть пустым");
     }
 
@@ -89,7 +89,7 @@ public class FilmControllerTest {
                 .map(ConstraintViolation::getMessage)
                 .findFirst()
                 .orElse("");
-        assertTrue(validates.size() > 0);
+        assertFalse(validates.isEmpty());
         assertEquals(message, "длина описания не может быть больше 200 символов");
     }
 
@@ -124,7 +124,7 @@ public class FilmControllerTest {
                 .map(ConstraintViolation::getMessage)
                 .findFirst()
                 .orElse("");
-        assertTrue(validates.size() > 0);
+        assertFalse(validates.isEmpty());
         assertEquals(message, "дата не может быть null");
     }
 
@@ -139,7 +139,7 @@ public class FilmControllerTest {
                 .map(ConstraintViolation::getMessage)
                 .findFirst()
                 .orElse("");
-        assertTrue(validates.size() > 0);
+        assertFalse(validates.isEmpty());
         assertEquals(message, "дата релиза — не раньше 28 декабря 1895 года");
     }
 
@@ -174,7 +174,7 @@ public class FilmControllerTest {
                 .map(ConstraintViolation::getMessage)
                 .findFirst()
                 .orElse("");
-        assertTrue(validates.size() > 0);
+        assertFalse(validates.isEmpty());
         assertEquals(message, "продолжительность фильма должна быть положительной");
     }
 
@@ -189,7 +189,7 @@ public class FilmControllerTest {
                 .map(ConstraintViolation::getMessage)
                 .findFirst()
                 .orElse("");
-        assertTrue(validates.size() > 0);
+        assertFalse(validates.isEmpty());
         assertEquals(message, "продолжительность фильма должна быть положительной");
     }
 

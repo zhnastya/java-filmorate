@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.service.user.UserService;
 
 import javax.validation.Valid;
 import javax.validation.ValidationException;
@@ -50,7 +50,7 @@ public class UserController {
     @GetMapping("/{id}")
     public User getUserById(@PathVariable("id") Integer id) {
         log.info("Запрос на получение пользователя с id - " + id);
-        User user = service.getUserbyId(id);
+        User user = service.getUserById(id);
         log.info("Пользователь с id - " + id + " отправлен");
         return user;
     }

@@ -9,8 +9,8 @@ import javax.validation.constraints.*;
 import java.time.LocalDate;
 
 @AllArgsConstructor
-@Builder
 @Data
+@Builder
 @Slf4j
 public class User {
     private Integer id;

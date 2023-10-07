@@ -17,27 +17,19 @@ public interface FilmStorage {
 
     Optional<Film> getFilmById(int id);
 
-    void addLike(Integer userId, Integer filmId);
+    void addLike(User user, Film film);
 
     void removeLike(Integer userId, Integer filmId);
 
     List<Film> getUserFilms(User user);
 
-    List<Genre> getAllGenres();
-
-    List<RateMPA> getAllRatings();
-
-    List<Genre> getGenreByFilmID(Integer id);
-
     void addGenresToFilm(Genre genre, Integer filmId);
 
-    Genre getGenreById(Integer id);
+    List<Genre> getGenreByFilmId(Integer id);
 
-    RateMPA getRateByFilmID(Integer id);
+    RateMPA getRateByFilmId(Integer id);
 
     void addRateToFilm(RateMPA rate, Integer filmId);
-
-    RateMPA getRateById(Integer id);
 
     void deleteAllGenresByFilm(Integer filmId);
 }

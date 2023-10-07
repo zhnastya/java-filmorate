@@ -2,9 +2,7 @@ package ru.yandex.practicum.filmorate.storage.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
@@ -16,17 +14,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-
-@Qualifier("UserDbStorage")
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class UserDbStorage implements UserStorage {
 
-    private final JdbcTemplate jdbcTemplate;
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-    private Map<String, Object> getParametrs(User user) {
+    private Map<String, Object> getParams(User user) {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("birthday", user.getBirthday());
         parameters.put("name", user.getName());
@@ -42,10 +37,10 @@ public class UserDbStorage implements UserStorage {
         if (user.getName().isEmpty()) {
             user.setName(user.getLogin());
         }
-        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
+        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(namedParameterJdbcTemplate.getJdbcTemplate())
                 .withTableName("users")
                 .usingGeneratedKeyColumns("user_id");
-        user.setId(simpleJdbcInsert.executeAndReturnKey(getParametrs(user)).intValue());
+        user.setId(simpleJdbcInsert.executeAndReturnKey(getParams(user)).intValue());
 
         return user;
     }
@@ -60,7 +55,7 @@ public class UserDbStorage implements UserStorage {
                 "birthday = :birthday " +
                 "WHERE user_id = :user_id";
 
-        int rows = namedParameterJdbcTemplate.update(sql, getParametrs(user));
+        int rows = namedParameterJdbcTemplate.update(sql, getParams(user));
         if (rows == 0) {
             log.warn("Пользователь с id {} не найден.", user.getId());
             throw new NotFoundException(
@@ -74,7 +69,7 @@ public class UserDbStorage implements UserStorage {
         String sql = "SELECT * " +
                 "FROM users";
 
-        return jdbcTemplate.query(sql, (rs, rowNum) -> new User(
+        return namedParameterJdbcTemplate.getJdbcTemplate().query(sql, (rs, rowNum) -> new User(
                 rs.getInt("user_id"),
                 rs.getString("email"),
                 rs.getString("login"),
@@ -151,7 +146,7 @@ public class UserDbStorage implements UserStorage {
     @Override
     public List<User> getFriends(Integer userId) {
         try {
-            String sql = "SELECT u.user_id, u.email, u.login, u.name, u.birthday " +
+            String sql = "SELECT * " +
                     "FROM users AS u " +
                     "LEFT JOIN friends AS f ON f.friend_id = u.user_id " +
                     "WHERE f.user_id = :user_id";
