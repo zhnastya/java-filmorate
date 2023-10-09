@@ -52,6 +52,7 @@ public class FilmDbTest {
         userStorage.createUser(user);
     }
 
+
     @Test
     public void testFindFilmById() {
         Optional<Film> userOptional = storage.getFilmById(1);
@@ -71,6 +72,7 @@ public class FilmDbTest {
         assertEquals(1, films.size());
     }
 
+
     @Test
     public void testFindGenreByFilm() {
         Film film = storage.getFilmById(1).orElseThrow();
@@ -80,6 +82,7 @@ public class FilmDbTest {
         assertEquals(genre.get(0).getName(), "Комедия");
     }
 
+
     @Test
     public void testDeleteAllGenresByFilm() {
         Film film = storage.getFilmById(1).orElseThrow();
@@ -88,10 +91,11 @@ public class FilmDbTest {
         assertEquals(0, storage.getGenreByFilm(film).size());
     }
 
+
     @Test
     public void testUpdateFilm() {
         Film film = new Film(1, "new", "new",
-                LocalDate.of(1999, 1, 1), 1 , 0,
+                LocalDate.of(1999, 1, 1), 1, 0,
                 new RateMPA(3, "PG-13"), List.of(new Genre(3, "Мультфильм")));
         storage.updateFilm(film);
         Film film1 = storage.getFilmById(1).orElseThrow();
@@ -112,6 +116,7 @@ public class FilmDbTest {
                 .isEqualTo(film.getMpa().getName());
     }
 
+
     @Test
     public void testAddLikeToFilm() {
         Film film = storage.getFilmById(1).orElseThrow();
@@ -130,6 +135,7 @@ public class FilmDbTest {
 
         assertEquals(0, storage.getFilmById(1).orElseThrow().getLikes());
     }
+
 
     @Test
     public void testGetUserFilms() {
