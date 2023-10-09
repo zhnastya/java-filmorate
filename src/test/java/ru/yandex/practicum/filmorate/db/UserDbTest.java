@@ -38,8 +38,13 @@ public class UserDbTest {
         User user = new User(1, "email@email.ru", "new", "new",
                 LocalDate.of(2001, 1, 1));
         userStorage.updateUser(user);
+        User user1 = userStorage.getUserById(1).orElseThrow();
 
-        assertEquals(user, userStorage.getUserById(1).orElseThrow());
+        assertEquals(user.getId(), user1.getId());
+        assertEquals(user.getEmail(), user1.getEmail());
+        assertEquals(user.getLogin(), user1.getLogin());
+        assertEquals(user.getName(), user1.getName());
+        assertEquals(user.getBirthday(), user1.getBirthday());
     }
 
     @Test
@@ -63,12 +68,13 @@ public class UserDbTest {
                 .email("email@email.ru")
                 .birthday(LocalDate.of(2000, 12, 12))
                 .build();
+        User user = userStorage.getUserById(1).orElseThrow();
         userStorage.createUser(friend);
-        userStorage.addFriend(1, 2);
+        User friend1 = userStorage.getUserById(2).orElseThrow();
+        userStorage.addFriend(user, friend1);
 
-        assertEquals(userStorage.getFriends(2).size(), 0);
-        assertEquals(userStorage.getFriends(1).size(), 1);
-        assertEquals(userStorage.getFriends(1).get(0), userStorage.getUserById(2).orElseThrow());
+        assertEquals(userStorage.getFriends(friend1).size(), 0);
+        assertEquals(userStorage.getFriends(user).size(), 1);
     }
 
     @Test
@@ -79,11 +85,13 @@ public class UserDbTest {
                 .email("email@email.ru")
                 .birthday(LocalDate.of(2000, 12, 12))
                 .build();
+        User user = userStorage.getUserById(1).orElseThrow();
         userStorage.createUser(friend);
-        userStorage.addFriend(1, 2);
-        userStorage.removeFriend(1, 2);
+        User friend1 = userStorage.getUserById(2).orElseThrow();
+        userStorage.addFriend(user, friend1);
+        userStorage.removeFriend(user, friend1);
 
-        assertEquals(userStorage.getFriends(2).size(), 0);
-        assertEquals(userStorage.getFriends(1).size(), 0);
+        assertEquals(userStorage.getFriends(friend1).size(), 0);
+        assertEquals(userStorage.getFriends(user).size(), 0);
     }
 }

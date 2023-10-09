@@ -31,7 +31,7 @@ public class MpaDbStorage implements MpaStorage {
             mapper.put("mpa_id", id);
             return namedParameterJdbcTemplate.queryForObject(sql, mapper,
                     (rs, rowNum) -> new RateMPA(rs.getInt("mpa_id"),
-                            rs.getString("name")));
+                            rs.getString("mpa_name")));
         } catch (EmptyResultDataAccessException e) {
             throw new NotFoundException(String.format("Рейтинг с id %d не найден.", id));
         }
@@ -44,6 +44,6 @@ public class MpaDbStorage implements MpaStorage {
                 "FROM mpa_ratings";
         return namedParameterJdbcTemplate.getJdbcTemplate()
                 .query(sql, (rs, rowNum) -> new RateMPA(rs.getInt("mpa_id"),
-                        rs.getString("name")));
+                        rs.getString("mpa_name")));
     }
 }

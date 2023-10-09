@@ -6,7 +6,6 @@ import ru.yandex.practicum.filmorate.exeption.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -42,50 +41,37 @@ public class UserServiceImpl implements UserService {
 
 
     private User getCheckUserThrow(Integer id) {
-        return storage.getUserById(id)
-                .orElseThrow(() -> new NotFoundException("Пользователь с id " + id + " не найден"));
+        return storage.getUserById(id).orElseThrow(() -> new NotFoundException("Пользователь с id " + id + " не найден"));
     }
 
 
     @Override
     public void addFriend(Integer userId, Integer friendId) {
-        getCheckUserThrow(userId);
-        getCheckUserThrow(friendId);
-        storage.addFriend(userId, friendId);
+        User user = getCheckUserThrow(userId);
+        User friend = getCheckUserThrow(friendId);
+        storage.addFriend(user, friend);
     }
 
 
     @Override
-    public void removeFriend(int userId, int friendId) {
-        getCheckUserThrow(userId);
+    public void removeFriend(Integer userId, Integer friendId) {
+        User user = getCheckUserThrow(userId);
         User friend = getCheckUserThrow(friendId);
-        List<User> friends = getFriends(userId);
-        if (friends.isEmpty() || !friends.contains(friend)) return;
-        storage.removeFriend(userId, friendId);
+        storage.removeFriend(user, friend);
     }
 
 
     @Override
     public List<User> getFriends(Integer id) {
-        return storage.getFriends(id);
+        User user = getCheckUserThrow(id);
+        return storage.getFriends(user);
     }
 
 
     @Override
-    public List<User> getSameFriends(int id, int otherId) {
-        getCheckUserThrow(id);
-        getCheckUserThrow(otherId);
-        List<User> friendsUser = storage.getFriends(id);
-        List<User> friendsOther = storage.getFriends(otherId);
-        List<User> sameUser = new ArrayList<>();
-        if (friendsUser.isEmpty() || friendsOther.isEmpty()) {
-            return sameUser;
-        }
-        for (User user : friendsUser) {
-            if (friendsOther.contains(user)) {
-                sameUser.add(user);
-            }
-        }
-        return sameUser;
+    public List<User> getSameFriends(Integer userId, Integer otherId) {
+        User user1 = getCheckUserThrow(userId);
+        User other = getCheckUserThrow(otherId);
+        return storage.getSameFriend(user1, other);
     }
 }

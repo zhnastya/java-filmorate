@@ -27,7 +27,7 @@ public class GenreDbStorage implements GenreStorage {
                 "FROM genres";
         return namedParameterJdbcTemplate.getJdbcTemplate()
                 .query(sql, (rs, rowNum) -> new Genre(rs.getInt("genre_id"),
-                        rs.getString("name")));
+                        rs.getString("genre_name")));
     }
 
     @Override
@@ -41,7 +41,7 @@ public class GenreDbStorage implements GenreStorage {
             mapper.put("genre_id", id);
             return namedParameterJdbcTemplate.queryForObject(sql, mapper,
                     (rs, rowNum) -> new Genre(rs.getInt("genre_id"),
-                            rs.getString("name")));
+                            rs.getString("genre_name")));
         } catch (EmptyResultDataAccessException e) {
             throw new NotFoundException(String.format("Жанр с id %d не найден.", id));
         }

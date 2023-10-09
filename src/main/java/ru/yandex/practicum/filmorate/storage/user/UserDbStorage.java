@@ -104,7 +104,7 @@ public class UserDbStorage implements UserStorage {
 
 
     @Override
-    public void addFriend(Integer userid, Integer friendId) {
+    public void addFriend(User user, User friend) {
         try {
             String sql = "MERGE " +
                     "INTO friends AS f " +
@@ -116,8 +116,8 @@ public class UserDbStorage implements UserStorage {
                     "VALUES (val.user_id, val.friend_id)";
 
             Map<String, Object> params = new HashMap<>();
-            params.put("user_id", userid);
-            params.put("friend_id", friendId);
+            params.put("user_id", user.getId());
+            params.put("friend_id", friend.getId());
             namedParameterJdbcTemplate.update(sql, params);
         } catch (EmptyResultDataAccessException e) {
             throw new NotFoundException("Неизвестный пользователь.");
@@ -126,17 +126,19 @@ public class UserDbStorage implements UserStorage {
 
 
     @Override
-    public void removeFriend(Integer userid, Integer friendId) {
+    public void removeFriend(User user, User friend) {
         try {
             String sql = "DELETE " +
                     "FROM friends " +
                     "WHERE user_id = :user_id " +
                     "AND friend_id = :friend_id";
 
+            List<User> friend1 = getFriends(user);
             Map<String, Object> params = new HashMap<>();
-            params.put("user_id", userid);
-            params.put("friend_id", friendId);
+            params.put("user_id", user.getId());
+            params.put("friend_id", friend.getId());
             namedParameterJdbcTemplate.update(sql, params);
+            List<User> friend2 = getFriends(user);
         } catch (EmptyResultDataAccessException e) {
             throw new NotFoundException("Неизвестный пользователь.");
         }
@@ -144,7 +146,7 @@ public class UserDbStorage implements UserStorage {
 
 
     @Override
-    public List<User> getFriends(Integer userId) {
+    public List<User> getFriends(User user) {
         try {
             String sql = "SELECT * " +
                     "FROM users AS u " +
@@ -152,7 +154,7 @@ public class UserDbStorage implements UserStorage {
                     "WHERE f.user_id = :user_id";
 
             Map<String, Object> params = new HashMap<>();
-            params.put("user_id", userId);
+            params.put("user_id", user.getId());
 
             return namedParameterJdbcTemplate.query(sql, params, (rs, rowNum) -> new User(
                     rs.getInt("user_id"),
@@ -164,7 +166,34 @@ public class UserDbStorage implements UserStorage {
             ));
 
         } catch (EmptyResultDataAccessException e) {
-            throw new NotFoundException(String.format("Пользователь с id %d не найден.", userId));
+            throw new NotFoundException(String.format("Пользователь с id %d не найден.", user.getId()));
         }
+    }
+
+    @Override
+    public List<User> getSameFriend(User user, User otherUser) {
+        String sql = "SELECT u.user_id," +
+                "u.email," +
+                "u.login," +
+                "u.name," +
+                "u.birthday " +
+                "FROM friends AS f " +
+                "JOIN friends AS f2 ON f2.user_id = :other_id " +
+                "AND f2.friend_id = f.friend_id " +
+                "JOIN users AS u ON u.user_id = f.friend_id " +
+                "WHERE f.user_id = :user_id";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("user_id", user.getId());
+        params.put("other_id", otherUser.getId());
+
+        return namedParameterJdbcTemplate.query(sql, params, (rs, rowNum) -> new User(
+                rs.getInt("user_id"),
+                rs.getString("email"),
+                rs.getString("login"),
+                rs.getString("name"),
+                rs.getDate("birthday").toLocalDate()
+
+        ));
     }
 }

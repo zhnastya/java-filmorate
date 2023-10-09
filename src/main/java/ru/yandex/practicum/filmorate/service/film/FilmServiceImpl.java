@@ -18,8 +18,7 @@ public class FilmServiceImpl implements FilmService {
     private final UserStorage userStorage;
 
     private Film getStorageFilmId(Integer id) {
-        return storage.getFilmById(id)
-                .orElseThrow(() -> new NotFoundException("Фильм с id " + id + " не найден"));
+        return storage.getFilmById(id).orElseThrow(() -> new NotFoundException("Фильм с id " + id + " не найден"));
     }
 
 
@@ -31,6 +30,7 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public Film updateFilm(Film film) {
+        getStorageFilmId(film.getId());
         storage.updateFilm(film);
         return getStorageFilmId(film.getId());
     }
@@ -50,8 +50,7 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public void addLike(Integer userId, Integer filmId) {
-        User user = userStorage.getUserById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+        User user = userStorage.getUserById(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
         Film film = getStorageFilmId(filmId);
         storage.addLike(user, film);
     }
@@ -62,9 +61,7 @@ public class FilmServiceImpl implements FilmService {
         User user = userStorage.getUserById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь c id - " + userId + " не найден"));
         Film film = getStorageFilmId(filmId);
-        List<Film> films1 = storage.getUserFilms(user);
-        if (films1.isEmpty() || !films1.contains(film)) return;
-        storage.removeLike(userId, filmId);
+        storage.removeLike(user, film);
     }
 
 
