@@ -16,6 +16,7 @@ import ru.yandex.practicum.filmorate.model.RateMPA;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -56,6 +57,7 @@ public class FilmDbStorage implements FilmStorage {
             params.put("genre_id", genre1.getId());
             namedParameterJdbcTemplate.update(sql, params);
         }
+        loadFilmGenres(List.of(film));
     }
 
 
@@ -77,25 +79,32 @@ public class FilmDbStorage implements FilmStorage {
         });
     }
 
-    private List<Genre> loadFilmGenres(List<Film> films) {
-        List<Genre> genres = new ArrayList<>();
+    private void loadFilmGenres(List<Film> films) {
+        if (films.isEmpty()) return;
+        Map<Integer, Film> map = new HashMap<>();
         for (Film film : films) {
-            String sql = "SELECT g.genre_id, " +
-                    "g.genre_name " +
-                    "FROM film_genre AS f " +
-                    "JOIN genres AS g ON f.genre_id = g.genre_id " +
-                    "WHERE f.film_id = :film_id";
-
-            Map<String, Object> mapper = new HashMap<>();
-            mapper.put("film_id", film.getId());
-
-            genres = namedParameterJdbcTemplate.query(sql, mapper, (rs, rowNum) -> new Genre(
-                    rs.getInt("genre_id"),
-                    rs.getString("genre_name")
-            ));
-            film.setGenres(genres);
+            map.put(film.getId(), film);
         }
-        return genres;
+        String sql = "SELECT f.film_id, " +
+                "g.genre_id, " +
+                "g.genre_name " +
+                "FROM film_genre AS f " +
+                "JOIN genres AS g ON f.genre_id = g.genre_id " +
+                "WHERE f.film_id IN (:ids)";
+
+        Map<String, Object> mapper = new HashMap<>();
+        mapper.put("ids", films.stream().map(Film::getId).collect(Collectors.toList()));
+        Map<Integer, Film> map2 = namedParameterJdbcTemplate.query(sql, mapper, rs -> {
+            while (rs.next()) {
+                Film film = map.get(rs.getInt("film_id"));
+                List<Genre> genres = new ArrayList<>(film.getGenres() == null ? Collections.emptyList() : film.getGenres());
+                genres.add(new Genre(rs.getInt("genre_id"), rs.getString("genre_name")));
+                film.setGenres(genres);
+                map.put(film.getId(), film);
+                map.merge(rs.getInt("film_id"), new Film(), (oldVal, newVal) -> newVal);
+            }
+            return map;
+        });
     }
 
     private void saveGenres(Film film) {
@@ -107,7 +116,8 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Genre> getGenreByFilm(Film film) {
-        return loadFilmGenres(List.of(film));
+         loadFilmGenres(List.of(film));
+         return film.getGenres();
     }
 
 

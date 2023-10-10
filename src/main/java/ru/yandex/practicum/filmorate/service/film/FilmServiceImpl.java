@@ -32,7 +32,7 @@ public class FilmServiceImpl implements FilmService {
     public Film updateFilm(Film film) {
         getStorageFilmId(film.getId());
         storage.updateFilm(film);
-        return getStorageFilmId(film.getId());
+        return film;
     }
 
 
