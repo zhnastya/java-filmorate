@@ -76,7 +76,7 @@ public class FilmDbTest {
     @Test
     public void testFindGenreByFilm() {
         Film film = storage.getFilmById(1).orElseThrow();
-        List<Genre> genre = storage.getGenreByFilm(film);
+        List<Genre> genre = film.getGenres();
 
         assertEquals(1, genre.size());
         assertEquals(genre.get(0).getName(), "Комедия");
@@ -85,10 +85,10 @@ public class FilmDbTest {
 
     @Test
     public void testDeleteAllGenresByFilm() {
-        Film film = storage.getFilmById(1).orElseThrow();
-        storage.deleteAllGenresByFilm(film);
+        storage.deleteAllGenresByFilm(storage.getFilmById(1).orElseThrow());
+        Film film1 = storage.getFilmById(1).orElseThrow();
 
-        assertEquals(0, storage.getGenreByFilm(film).size());
+        assertEquals(0, storage.getGenreByFilm(film1).size());
     }
 
 

@@ -9,7 +9,6 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exeption.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.RateMPA;
@@ -38,6 +37,8 @@ public class FilmDbStorage implements FilmStorage {
 
 
     private void updateGenresByFilm(Film film, List<Genre> genre) {
+        film.setGenres(new ArrayList<>());
+        if (genre.isEmpty()) return;
         for (Genre genre1 : genre) {
             String sql = "MERGE " +
                     "INTO film_genre AS f " +
@@ -79,6 +80,7 @@ public class FilmDbStorage implements FilmStorage {
         });
     }
 
+
     private void loadFilmGenres(List<Film> films) {
         if (films.isEmpty()) return;
         Map<Integer, Film> map = new HashMap<>();
@@ -94,30 +96,23 @@ public class FilmDbStorage implements FilmStorage {
 
         Map<String, Object> mapper = new HashMap<>();
         mapper.put("ids", films.stream().map(Film::getId).collect(Collectors.toList()));
-        Map<Integer, Film> map2 = namedParameterJdbcTemplate.query(sql, mapper, rs -> {
+        namedParameterJdbcTemplate.query(sql, mapper, rs -> {
             while (rs.next()) {
                 Film film = map.get(rs.getInt("film_id"));
                 List<Genre> genres = new ArrayList<>(film.getGenres() == null ? Collections.emptyList() : film.getGenres());
                 genres.add(new Genre(rs.getInt("genre_id"), rs.getString("genre_name")));
                 film.setGenres(genres);
                 map.put(film.getId(), film);
-                map.merge(rs.getInt("film_id"), new Film(), (oldVal, newVal) -> newVal);
             }
             return map;
         });
     }
 
-    private void saveGenres(Film film) {
-        if (film.getGenres() != null && !film.getGenres().isEmpty()) {
-            updateGenresByFilm(film, film.getGenres());
-        }
-    }
-
 
     @Override
     public List<Genre> getGenreByFilm(Film film) {
-         loadFilmGenres(List.of(film));
-         return film.getGenres();
+        loadFilmGenres(List.of(film));
+        return film.getGenres();
     }
 
 
@@ -148,31 +143,25 @@ public class FilmDbStorage implements FilmStorage {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         namedParameterJdbcTemplate.update(sql, namedParameters, keyHolder);
         film.setId((Integer) keyHolder.getKey());
-        saveGenres(film);
+        updateGenresByFilm(film, film.getGenres());
         return film;
     }
 
 
     @Override
     public void updateFilm(Film film) {
-        try {
-            String sql = "UPDATE films " +
-                    "SET name = :name, " +
-                    "description = :description, " +
-                    "release_date = :release_date, " +
-                    "duration = :duration," +
-                    "likes= :likes, " +
-                    "mpa_id = :mpa_id " +
-                    "WHERE film_id = :film_id";
+        String sql = "UPDATE films " +
+                "SET name = :name, " +
+                "description = :description, " +
+                "release_date = :release_date, " +
+                "duration = :duration," +
+                "likes= :likes, " +
+                "mpa_id = :mpa_id " +
+                "WHERE film_id = :film_id";
 
-            namedParameterJdbcTemplate.update(sql, getParams(film));
-            deleteAllGenresByFilm(film);
-            if (film.getGenres() != null && !film.getGenres().isEmpty()) {
-                updateGenresByFilm(film, film.getGenres());
-            }
-        } catch (EmptyResultDataAccessException e) {
-            throw new NotFoundException("Неверный id пользователя или фильма");
-        }
+        namedParameterJdbcTemplate.update(sql, getParams(film));
+        deleteAllGenresByFilm(film);
+        updateGenresByFilm(film, film.getGenres());
     }
 
 
@@ -214,57 +203,51 @@ public class FilmDbStorage implements FilmStorage {
             return film;
 
         } catch (EmptyResultDataAccessException e) {
-            throw new NotFoundException("Неверный id пользователя или фильма");
+            return Optional.empty();
         }
     }
 
 
     @Override
     public void addLike(User user, Film film) {
-        try {
+        String sql = "MERGE " +
+                "INTO likes AS l " +
+                "USING VALUES (:film_id, :user_id) AS val(film_id, user_id) " +
+                "ON l.film_id = val.film_id " +
+                "AND l.user_id = val.user_id " +
+                "WHEN NOT MATCHED THEN " +
+                "INSERT " +
+                "VALUES (val.film_id, val.user_id);" +
+                "UPDATE films " +
+                "SET likes = (SELECT COUNT(user_id) " +
+                "FROM likes " +
+                "WHERE film_id= :film_id) " +
+                "WHERE film_id = :film_id";
 
-            String sql = "MERGE " +
-                    "INTO likes AS l " +
-                    "USING VALUES (:film_id, :user_id) AS val(film_id, user_id) " +
-                    "ON l.film_id = val.film_id " +
-                    "AND l.user_id = val.user_id " +
-                    "WHEN NOT MATCHED THEN " +
-                    "INSERT " +
-                    "VALUES (val.film_id, val.user_id);" +
-                    "UPDATE films " +
-                    "SET likes = likes + 1 " +
-                    "WHERE film_id = :film_id";
-
-            Map<String, Object> params = new HashMap<>();
-            params.put("film_id", film.getId());
-            params.put("user_id", user.getId());
-            namedParameterJdbcTemplate.update(sql, params);
-
-        } catch (EmptyResultDataAccessException e) {
-            throw new NotFoundException("Неверный id пользователя или фильма");
-        }
+        Map<String, Object> params = new HashMap<>();
+        params.put("film_id", film.getId());
+        params.put("user_id", user.getId());
+        namedParameterJdbcTemplate.update(sql, params);
     }
 
 
     @Override
     public void removeLike(User user, Film film) {
-        try {
-            String sql = "DELETE " +
-                    "FROM likes " +
-                    "WHERE film_id = :film_id " +
-                    "AND user_id = :user_id;" +
-                    "UPDATE films " +
-                    "SET likes = likes - 1 " +
-                    "WHERE film_id = :film_id";
+        String sql = "DELETE " +
+                "FROM likes " +
+                "WHERE film_id = :film_id " +
+                "AND user_id = :user_id;" +
+                "UPDATE films " +
+                "SET likes = (SELECT COUNT(user_id) " +
+                "FROM likes " +
+                "WHERE film_id= :film_id) " +
+                "WHERE film_id = :film_id";
 
-            Map<String, Object> params = new HashMap<>();
-            params.put("film_id", film.getId());
-            params.put("user_id", user.getId());
+        Map<String, Object> params = new HashMap<>();
+        params.put("film_id", film.getId());
+        params.put("user_id", user.getId());
 
-            namedParameterJdbcTemplate.update(sql, params);
-        } catch (EmptyResultDataAccessException e) {
-            throw new NotFoundException("Неверный id пользователя или фильма");
-        }
+        namedParameterJdbcTemplate.update(sql, params);
     }
 
 
@@ -295,7 +278,7 @@ public class FilmDbStorage implements FilmStorage {
             return films;
 
         } catch (EmptyResultDataAccessException e) {
-            throw new NotFoundException(String.format("Пользователь с id %d не найден.", user.getId()));
+            return Collections.emptyList();
         }
     }
 }

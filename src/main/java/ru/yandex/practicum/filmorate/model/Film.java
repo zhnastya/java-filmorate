@@ -9,6 +9,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
@@ -30,5 +31,5 @@ public class Film {
     private int duration;
     private int likes;
     private RateMPA mpa;
-    private List<Genre> genres;
+    private List<Genre> genres = new ArrayList<>();
 }
