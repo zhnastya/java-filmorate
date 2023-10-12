@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
@@ -21,8 +20,4 @@ public interface FilmStorage {
     void removeLike(User user, Film film);
 
     List<Film> getUserFilms(User user);
-
-    List<Genre> getGenreByFilm(Film film);
-
-    void deleteAllGenresByFilm(Film film);
 }

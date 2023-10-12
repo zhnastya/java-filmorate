@@ -84,15 +84,6 @@ public class FilmDbTest {
 
 
     @Test
-    public void testDeleteAllGenresByFilm() {
-        storage.deleteAllGenresByFilm(storage.getFilmById(1).orElseThrow());
-        Film film1 = storage.getFilmById(1).orElseThrow();
-
-        assertEquals(0, storage.getGenreByFilm(film1).size());
-    }
-
-
-    @Test
     public void testUpdateFilm() {
         Film film = new Film(1, "new", "new",
                 LocalDate.of(1999, 1, 1), 1, 0,
