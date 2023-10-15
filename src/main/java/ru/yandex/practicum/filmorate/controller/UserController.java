@@ -1,10 +1,10 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.service.user.UserService;
 
 import javax.validation.Valid;
 import javax.validation.ValidationException;
@@ -13,13 +13,9 @@ import java.util.List;
 @RestController
 @Slf4j
 @RequestMapping("/users")
+@RequiredArgsConstructor
 public class UserController {
     private final UserService service;
-
-    @Autowired
-    public UserController(UserService service) {
-        this.service = service;
-    }
 
 
     @PostMapping
@@ -54,7 +50,7 @@ public class UserController {
     @GetMapping("/{id}")
     public User getUserById(@PathVariable("id") Integer id) {
         log.info("Запрос на получение пользователя с id - " + id);
-        User user = service.getUserbyId(id);
+        User user = service.getUserById(id);
         log.info("Пользователь с id - " + id + " отправлен");
         return user;
     }

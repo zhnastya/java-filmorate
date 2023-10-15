@@ -1,6 +1,6 @@
-package ru.yandex.practicum.filmorate.service;
+package ru.yandex.practicum.filmorate.service.film;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exeption.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -12,44 +12,43 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class FilmService {
+@RequiredArgsConstructor
+public class FilmServiceImpl implements FilmService {
     private final FilmStorage storage;
     private final UserStorage userStorage;
 
-    @Autowired
-    public FilmService(FilmStorage storage, UserStorage userStorage) {
-        this.storage = storage;
-        this.userStorage = userStorage;
-    }
-
-    private Film getStorageFilmId(Integer id) { //создала приватный метод, чтобы избежать дублирования кода
-        return storage.getFilmById(id)
-                .orElseThrow(() -> new NotFoundException("Фильм с id " + id + " не найден"));
+    private Film getStorageFilmId(Integer id) {
+        return storage.getFilmById(id).orElseThrow(() -> new NotFoundException("Фильм с id " + id + " не найден"));
     }
 
 
+    @Override
     public Film createFilm(Film film) {
         return storage.createFilm(film);
     }
 
 
+    @Override
     public Film updateFilm(Film film) {
-        getStorageFilmId(film.getId()); // вызвала метод, чтобы проверить не выброситься ли исключение
+        getStorageFilmId(film.getId());
         storage.updateFilm(film);
         return film;
     }
 
 
+    @Override
     public Film getById(Integer id) {
         return getStorageFilmId(id);
     }
 
 
+    @Override
     public List<Film> getFilms() {
         return storage.getFilms();
     }
 
 
+    @Override
     public void addLike(Integer userId, Integer filmId) {
         User user = userStorage.getUserById(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
         Film film = getStorageFilmId(filmId);
@@ -57,16 +56,16 @@ public class FilmService {
     }
 
 
+    @Override
     public void removeLike(Integer filmId, Integer userId) {
         User user = userStorage.getUserById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь c id - " + userId + " не найден"));
         Film film = getStorageFilmId(filmId);
-        List<Film> films1 = storage.getUserFilms(user);
-        if (films1.isEmpty() || !films1.contains(film)) return;
         storage.removeLike(user, film);
     }
 
 
+    @Override
     public List<Film> getPopular(Integer limit) {
         return storage.getFilms().stream()
                 .sorted((s, s1) -> Integer.compare(s1.getLikes(), s.getLikes()))
